@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import AppLayout from '@/components/AppLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -52,6 +53,7 @@ interface ChatMessage {
 const CreateVideo = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [currentStep, setCurrentStep] = useState(0);
 
   // Step 1 — Methodology
@@ -112,10 +114,10 @@ const CreateVideo = () => {
         onDone: () => setIsGenerating(false),
       });
     } catch (e: any) {
-      toast.error(e.message || 'Failed to generate script');
+      toast.error(t('createVideo.failedGenerate'));
       setIsGenerating(false);
     }
-  }, [selectedMethodology, answers]);
+  }, [selectedMethodology, answers, t]);
 
   const handleRefine = useCallback(async (instruction: string) => {
     if (!selectedMethodology || !script || isRefining) return;
@@ -147,10 +149,10 @@ const CreateVideo = () => {
         },
       });
     } catch (e: any) {
-      toast.error(e.message || 'Failed to refine script');
+      toast.error(t('createVideo.failedRefine'));
       setIsRefining(false);
     }
-  }, [selectedMethodology, script, chatMessages, isRefining]);
+  }, [selectedMethodology, script, chatMessages, isRefining, t]);
 
   const handleSaveAndContinue = async () => {
     if (!user || !selectedMethodology || !script) return;
@@ -167,10 +169,10 @@ const CreateVideo = () => {
       }).select('id').single();
       if (error) throw error;
       setSaved(true);
-      toast.success('Script saved! Redirecting to studio...');
+      toast.success(t('createVideo.scriptSaved'));
       setTimeout(() => navigate(`/recording-studio?scriptId=${data.id}`), 1000);
     } catch (e: any) {
-      toast.error(e.message || 'Failed to save script');
+      toast.error(t('createVideo.failedSave'));
     } finally {
       setIsSaving(false);
     }
@@ -178,20 +180,21 @@ const CreateVideo = () => {
 
   // ── Step definitions ──────────────────────────────────
 
-  const steps = [
-    { label: 'Impact', icon: Sparkles },
-    { label: 'Strategy', icon: Target },
-    { label: 'Script', icon: FileText },
-    { label: 'Refine', icon: MessageSquare },
-    { label: 'Validate', icon: CheckCircle2 },
+  const QUICK_REFINEMENTS = [
+    { key: 'moreDirect', label: t('createVideo.quickRefinements.moreDirect') },
+    { key: 'reduce30', label: t('createVideo.quickRefinements.reduce30') },
+    { key: 'moreEmotional', label: t('createVideo.quickRefinements.moreEmotional') },
+    { key: 'addUrgency', label: t('createVideo.quickRefinements.addUrgency') },
+    { key: 'simplify', label: t('createVideo.quickRefinements.simplify') },
   ];
 
-  return (
-    <AppLayout>
-      {/* Header + Stepper */}
-      <motion.div initial="hidden" animate="visible" variants={fadeUp} className="mb-8">
-        <h1 className="text-3xl font-bold text-foreground">Create Video</h1>
-        <p className="mt-1 text-muted-foreground">Follow the flow to craft your high-impact message.</p>
+  const steps = [
+    { label: t('createVideo.steps.impact'), icon: Sparkles },
+    { label: t('createVideo.steps.strategy'), icon: Target },
+    { label: t('createVideo.steps.script'), icon: FileText },
+    { label: t('createVideo.steps.refine'), icon: MessageSquare },
+    { label: t('createVideo.steps.validate'), icon: CheckCircle2 },
+  ];
 
         {/* Stepper */}
         <div className="mt-6 flex items-center gap-2">
