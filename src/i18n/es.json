@@ -252,5 +252,53 @@
     "high": "alta",
     "medium": "media",
     "low": "baja"
+  },
+  "createVideo": {
+    "title": "Crear Video",
+    "subtitle": "Sigue el flujo para crear tu mensaje de alto impacto.",
+    "steps": {
+      "impact": "Impacto",
+      "strategy": "Estrategia",
+      "script": "Guion",
+      "refine": "Refinar",
+      "validate": "Validar"
+    },
+    "chooseImpact": "Elige el impacto comunicativo que quieres crear.",
+    "continue": "Continuar",
+    "strategicQuestions": "Preguntas Estratégicas",
+    "answersShape": "Responde con cuidado. Tus respuestas darán forma al guion generado por IA.",
+    "writePlaceholder": "Escribe tu respuesta aquí...",
+    "back": "Atrás",
+    "generateScript": "Generar Guion",
+    "yourScript": "Tu Guion",
+    "aiCrafting": "La IA está creando tu guion...",
+    "reviewScript": "Revisa tu guion generado a continuación.",
+    "generating": "Generando...",
+    "refineScript": "Refinar Guion",
+    "refineWithAI": "Refinar con IA",
+    "refineDesc": "Dile a la IA cómo mejorar tu guion. Cada cambio lo actualiza en tiempo real.",
+    "currentScript": "Guion Actual",
+    "chatPlaceholder": "ej. Haz el gancho más provocativo...",
+    "validateContinue": "Validar y Continuar",
+    "validateScript": "Valida Tu Guion",
+    "validateDesc": "Revisa la versión final. Una vez validado, desbloquearás la fase de grabación.",
+    "finalScript": "Guion Final",
+    "readyReview": "Listo para revisión",
+    "scriptStructure": "Estructura del Guion",
+    "backToRefine": "Volver a Refinar",
+    "saved": "Guardado",
+    "saving": "Guardando...",
+    "validateUnlock": "Validar y Desbloquear Grabación",
+    "scriptSaved": "¡Guion guardado! Redirigiendo al estudio...",
+    "failedGenerate": "Error al generar el guion",
+    "failedRefine": "Error al refinar el guion",
+    "failedSave": "Error al guardar el guion",
+    "quickRefinements": {
+      "moreDirect": "Hazlo más directo",
+      "reduce30": "Reducir a 30 segundos",
+      "moreEmotional": "Hazlo más emocional",
+      "addUrgency": "Añade más urgencia",
+      "simplify": "Simplifica el lenguaje"
+    }
   }
 }
