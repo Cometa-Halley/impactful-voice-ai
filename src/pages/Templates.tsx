@@ -152,7 +152,7 @@ const Templates = () => {
             {filtered.map((tmpl, i) => {
               const MethodIcon = METHODOLOGY_ICONS[tmpl.methodology ?? ''] ?? Sparkles;
               const methodColor = METHODOLOGY_COLORS[tmpl.methodology ?? ''] ?? 'bg-secondary text-muted-foreground border-border';
-              const methodLabel = tmpl.methodology ? METHODOLOGIES[tmpl.methodology as MethodologyKey]?.name : null;
+              const methodLabel = tmpl.methodology ? methods[tmpl.methodology as MethodologyKey]?.name : null;
               const structure = (tmpl.structure ?? []) as string[];
 
               return (
@@ -172,7 +172,7 @@ const Templates = () => {
                     <CardHeader className="pb-3 flex-1">
                       <div className="flex items-center justify-between mb-2">
                         <Badge variant="outline" className="bg-secondary/80 text-muted-foreground border-border text-xs">
-                          {tmpl.category}
+                          {tc(tmpl.category)}
                         </Badge>
                         {tmpl.recommended_duration && (
                           <div className="flex items-center gap-1 text-xs text-muted-foreground">
@@ -182,10 +182,10 @@ const Templates = () => {
                         )}
                       </div>
                       <CardTitle className="text-base group-hover:text-primary transition-colors">
-                        {tmpl.title ?? tmpl.category}
+                        {tt(tmpl.title) || tc(tmpl.category)}
                       </CardTitle>
                       <CardDescription className="text-sm line-clamp-2">
-                        {tmpl.description}
+                        {td(tmpl.description)}
                       </CardDescription>
                     </CardHeader>
                     <CardContent className="pt-0">
@@ -214,7 +214,7 @@ const Templates = () => {
         {selectedTemplate && (() => {
           const MethodIcon = METHODOLOGY_ICONS[selectedTemplate.methodology ?? ''] ?? Sparkles;
           const methodColor = METHODOLOGY_COLORS[selectedTemplate.methodology ?? ''] ?? 'bg-secondary text-muted-foreground border-border';
-          const methodData = selectedTemplate.methodology ? METHODOLOGIES[selectedTemplate.methodology as MethodologyKey] : null;
+          const methodData = selectedTemplate.methodology ? methods[selectedTemplate.methodology as MethodologyKey] : null;
           const structure = (selectedTemplate.structure ?? []) as string[];
 
           return (
@@ -222,7 +222,7 @@ const Templates = () => {
               <DialogHeader>
                 <div className="flex items-center gap-2 mb-1">
                   <Badge variant="outline" className="bg-secondary/80 text-muted-foreground border-border text-xs">
-                    {selectedTemplate.category}
+                    {tc(selectedTemplate.category)}
                   </Badge>
                   {selectedTemplate.recommended_duration && (
                     <Badge variant="outline" className="bg-secondary/80 text-muted-foreground border-border text-xs gap-1">
@@ -231,8 +231,8 @@ const Templates = () => {
                     </Badge>
                   )}
                 </div>
-                <DialogTitle className="text-xl">{selectedTemplate.title ?? selectedTemplate.category}</DialogTitle>
-                <DialogDescription>{selectedTemplate.description}</DialogDescription>
+                <DialogTitle className="text-xl">{tt(selectedTemplate.title) || tc(selectedTemplate.category)}</DialogTitle>
+                <DialogDescription>{td(selectedTemplate.description)}</DialogDescription>
               </DialogHeader>
 
               {/* Methodology */}
