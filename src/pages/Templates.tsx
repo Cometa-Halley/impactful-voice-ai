@@ -147,10 +147,8 @@ const Templates = () => {
               <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-secondary text-muted-foreground">
                 <LayoutTemplate className="h-8 w-8" />
               </div>
-              <h3 className="text-lg font-semibold text-foreground">No templates in this category</h3>
-              <p className="text-sm text-muted-foreground max-w-sm">
-                Try selecting a different category or browse all templates.
-              </p>
+              <h3 className="text-lg font-semibold text-foreground">{t('templates.noTemplates')}</h3>
+              <p className="text-sm text-muted-foreground max-w-sm">{t('templates.noTemplatesDesc')}</p>
             </CardContent>
           </Card>
         </motion.div>
