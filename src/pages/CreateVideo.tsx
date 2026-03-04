@@ -391,12 +391,12 @@ const CreateVideo = () => {
             <div className="flex flex-wrap gap-2">
               {QUICK_REFINEMENTS.map(r => (
                 <button
-                  key={r}
-                  onClick={() => handleRefine(r)}
+                  key={r.key}
+                  onClick={() => handleRefine(r.label)}
                   disabled={isRefining}
                   className="rounded-full bg-secondary px-3 py-1.5 text-xs font-medium text-secondary-foreground hover:bg-nav-hover/30 transition-colors disabled:opacity-50"
                 >
-                  {r}
+                  {r.label}
                 </button>
               ))}
             </div>
