@@ -198,6 +198,8 @@ export type Database = {
           recommended_duration:
             | Database["public"]["Enums"]["script_duration"]
             | null
+          structure: Json | null
+          title: string | null
         }
         Insert: {
           category: string
@@ -208,6 +210,8 @@ export type Database = {
           recommended_duration?:
             | Database["public"]["Enums"]["script_duration"]
             | null
+          structure?: Json | null
+          title?: string | null
         }
         Update: {
           category?: string
@@ -218,6 +222,8 @@ export type Database = {
           recommended_duration?:
             | Database["public"]["Enums"]["script_duration"]
             | null
+          structure?: Json | null
+          title?: string | null
         }
         Relationships: []
       }
