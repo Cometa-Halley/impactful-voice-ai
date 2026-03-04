@@ -1,21 +1,23 @@
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { LogOut, LayoutDashboard, Video, Film, LayoutTemplate, User } from 'lucide-react';
 import logoPresencia from '@/assets/logo-presencia.png';
 import ParticleBackground from '@/components/ParticleBackground';
 
-const navItems = [
-  { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-  { to: '/create-video', icon: Video, label: 'Create Video' },
-  { to: '/my-videos', icon: Film, label: 'My Videos' },
-  { to: '/templates', icon: LayoutTemplate, label: 'Templates' },
-  { to: '/profile', icon: User, label: 'Profile' },
-];
-
 const AppLayout = ({ children }: { children: React.ReactNode }) => {
   const { signOut } = useAuth();
+  const { t } = useTranslation();
   const location = useLocation();
+
+  const navItems = [
+    { to: '/dashboard', icon: LayoutDashboard, label: t('nav.dashboard') },
+    { to: '/create-video', icon: Video, label: t('nav.createVideo') },
+    { to: '/my-videos', icon: Film, label: t('nav.myVideos') },
+    { to: '/templates', icon: LayoutTemplate, label: t('nav.templates') },
+    { to: '/profile', icon: User, label: t('nav.profile') },
+  ];
 
   return (
     <div className="min-h-screen bg-background relative">
@@ -47,7 +49,7 @@ const AppLayout = ({ children }: { children: React.ReactNode }) => {
 
           <Button variant="ghost" size="sm" onClick={signOut} className="text-muted-foreground hover:text-foreground">
             <LogOut className="mr-2 h-4 w-4" />
-            <span className="hidden sm:inline">Sign Out</span>
+            <span className="hidden sm:inline">{t('nav.signOut')}</span>
           </Button>
         </div>
 
