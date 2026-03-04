@@ -203,7 +203,7 @@ const Templates = () => {
                           </Badge>
                         )}
                         <span className="text-xs text-muted-foreground">
-                          {structure.length} blocks
+                          {t('templates.blocks', { count: structure.length })}
                         </span>
                       </div>
                     </CardContent>
@@ -254,7 +254,7 @@ const Templates = () => {
               {/* Structure */}
               {structure.length > 0 && (
                 <div className="mt-4 space-y-2">
-                  <h4 className="text-sm font-semibold text-foreground">Example Structure</h4>
+                  <h4 className="text-sm font-semibold text-foreground">{t('templates.exampleStructure')}</h4>
                   <div className="space-y-2">
                     {structure.map((block, i) => {
                       const [title, ...rest] = block.split('—');
@@ -277,13 +277,13 @@ const Templates = () => {
 
               <DialogFooter className="mt-4">
                 <Button variant="outline" onClick={() => setSelectedTemplate(null)}>
-                  Close
+                  {t('templates.close')}
                 </Button>
                 <Button
                   onClick={() => handleUseTemplate(selectedTemplate)}
                   className="glow-gold font-semibold gap-2"
                 >
-                  Use Template <ArrowRight className="h-4 w-4" />
+                  {t('templates.useTemplate')} <ArrowRight className="h-4 w-4" />
                 </Button>
               </DialogFooter>
             </DialogContent>
