@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { FileText, Video, TrendingUp, LogOut } from 'lucide-react';
 import logoPresencia from '@/assets/logo-presencia.png';
+import ParticleBackground from '@/components/ParticleBackground';
 
 const features = [
   { icon: FileText, title: 'Create Script', desc: 'Generate AI-powered scripts from your ideas', soon: true },
@@ -28,7 +29,8 @@ const Dashboard = () => {
   const displayName = fullName || user?.email?.split('@')[0] || 'there';
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background relative">
+      <ParticleBackground />
       <nav className="border-b border-border bg-background/80 backdrop-blur-xl">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
           <div className="flex items-center gap-2">
