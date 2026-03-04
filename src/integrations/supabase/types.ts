@@ -14,29 +14,247 @@ export type Database = {
   }
   public: {
     Tables: {
+      feedback: {
+        Row: {
+          clarity_score: number | null
+          coherence_score: number | null
+          created_at: string
+          cta_strength: number | null
+          energy_score: number | null
+          hook_score: number | null
+          id: string
+          suggestions: string | null
+          video_id: string
+        }
+        Insert: {
+          clarity_score?: number | null
+          coherence_score?: number | null
+          created_at?: string
+          cta_strength?: number | null
+          energy_score?: number | null
+          hook_score?: number | null
+          id?: string
+          suggestions?: string | null
+          video_id: string
+        }
+        Update: {
+          clarity_score?: number | null
+          coherence_score?: number | null
+          created_at?: string
+          cta_strength?: number | null
+          energy_score?: number | null
+          hook_score?: number | null
+          id?: string
+          suggestions?: string | null
+          video_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "feedback_video_id_fkey"
+            columns: ["video_id"]
+            isOneToOne: false
+            referencedRelation: "videos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
+          confidence_level: number | null
           created_at: string
+          experience_level:
+            | Database["public"]["Enums"]["experience_level"]
+            | null
           full_name: string | null
           id: string
+          sector: string | null
+          target_audience: string | null
           updated_at: string
         }
         Insert: {
           avatar_url?: string | null
+          confidence_level?: number | null
           created_at?: string
+          experience_level?:
+            | Database["public"]["Enums"]["experience_level"]
+            | null
           full_name?: string | null
           id: string
+          sector?: string | null
+          target_audience?: string | null
           updated_at?: string
         }
         Update: {
           avatar_url?: string | null
+          confidence_level?: number | null
           created_at?: string
+          experience_level?:
+            | Database["public"]["Enums"]["experience_level"]
+            | null
           full_name?: string | null
           id?: string
+          sector?: string | null
+          target_audience?: string | null
           updated_at?: string
         }
         Relationships: []
+      }
+      scripts: {
+        Row: {
+          call_to_action: string | null
+          created_at: string
+          development: string | null
+          duration: Database["public"]["Enums"]["script_duration"] | null
+          format: Database["public"]["Enums"]["script_format"] | null
+          hook: string | null
+          id: string
+          methodology: string | null
+          template_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          call_to_action?: string | null
+          created_at?: string
+          development?: string | null
+          duration?: Database["public"]["Enums"]["script_duration"] | null
+          format?: Database["public"]["Enums"]["script_format"] | null
+          hook?: string | null
+          id?: string
+          methodology?: string | null
+          template_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          call_to_action?: string | null
+          created_at?: string
+          development?: string | null
+          duration?: Database["public"]["Enums"]["script_duration"] | null
+          format?: Database["public"]["Enums"]["script_format"] | null
+          hook?: string | null
+          id?: string
+          methodology?: string | null
+          template_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "scripts_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sessions: {
+        Row: {
+          created_at: string
+          current_step: number | null
+          id: string
+          methodology: string | null
+          script_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          current_step?: number | null
+          id?: string
+          methodology?: string | null
+          script_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          current_step?: number | null
+          id?: string
+          methodology?: string | null
+          script_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sessions_script_id_fkey"
+            columns: ["script_id"]
+            isOneToOne: false
+            referencedRelation: "scripts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      templates: {
+        Row: {
+          category: string
+          created_at: string
+          description: string | null
+          id: string
+          methodology: string | null
+          recommended_duration:
+            | Database["public"]["Enums"]["script_duration"]
+            | null
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          methodology?: string | null
+          recommended_duration?:
+            | Database["public"]["Enums"]["script_duration"]
+            | null
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          methodology?: string | null
+          recommended_duration?:
+            | Database["public"]["Enums"]["script_duration"]
+            | null
+        }
+        Relationships: []
+      }
+      videos: {
+        Row: {
+          analysis_score: number | null
+          created_at: string
+          file_url: string | null
+          id: string
+          script_id: string | null
+          user_id: string
+        }
+        Insert: {
+          analysis_score?: number | null
+          created_at?: string
+          file_url?: string | null
+          id?: string
+          script_id?: string | null
+          user_id: string
+        }
+        Update: {
+          analysis_score?: number | null
+          created_at?: string
+          file_url?: string | null
+          id?: string
+          script_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "videos_script_id_fkey"
+            columns: ["script_id"]
+            isOneToOne: false
+            referencedRelation: "scripts"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
@@ -46,7 +264,9 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      experience_level: "beginner" | "intermediate" | "advanced"
+      script_duration: "30s" | "60s"
+      script_format: "vertical" | "horizontal"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -173,6 +393,10 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      experience_level: ["beginner", "intermediate", "advanced"],
+      script_duration: ["30s", "60s"],
+      script_format: ["vertical", "horizontal"],
+    },
   },
 } as const
