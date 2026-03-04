@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
 import { Lightbulb, FileText, Video, TrendingUp, Users, Mic, Brain, Target, ArrowRight } from 'lucide-react';
 import logoPresencia from '@/assets/logo-presencia.png';
+import ParticleBackground from '@/components/ParticleBackground';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
@@ -41,7 +42,8 @@ const Index = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background relative">
+      <ParticleBackground />
       {/* Navbar */}
       <nav className="fixed top-0 z-50 w-full border-b border-border/40 bg-background/70 backdrop-blur-xl">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
