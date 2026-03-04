@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from 'sonner';
+import logoPresencia from '@/assets/logo-presencia.png';
 
 const Auth = () => {
   const { user, loading, signIn, signUp, resetPassword } = useAuth();
@@ -18,7 +19,7 @@ const Auth = () => {
 
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-background">
+      <div className="gradient-sanctuary flex min-h-screen items-center justify-center">
         <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
       </div>
     );
@@ -62,19 +63,20 @@ const Auth = () => {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-muted/30 px-4">
+    <div className="gradient-sanctuary flex min-h-screen items-center justify-center px-4">
       <div className="w-full max-w-md">
-        <Link to="/" className="mb-8 block text-center text-2xl font-bold tracking-tight text-foreground">
-          PRESENCIA
+        <Link to="/" className="mb-8 flex items-center justify-center gap-2">
+          <img src={logoPresencia} alt="Presencia" className="h-10 w-auto" />
+          <span className="text-2xl font-bold tracking-tight text-foreground">Presencia</span>
         </Link>
-        <Card>
+        <Card className="gradient-card border-border">
           <CardHeader className="text-center">
-            <CardTitle>
+            <CardTitle className="text-foreground">
               {isForgot ? 'Reset Password' : isLogin ? 'Welcome back' : 'Create your account'}
             </CardTitle>
             <CardDescription>
               {isForgot
-                ? 'Enter your email and we\'ll send you a reset link'
+                ? "Enter your email and we'll send you a reset link"
                 : isLogin
                   ? 'Sign in to continue to Presencia'
                   : 'Start communicating with intention'}
@@ -85,76 +87,40 @@ const Auth = () => {
               {!isLogin && !isForgot && (
                 <div className="space-y-2">
                   <Label htmlFor="fullName">Full Name</Label>
-                  <Input
-                    id="fullName"
-                    value={fullName}
-                    onChange={(e) => setFullName(e.target.value)}
-                    placeholder="Your full name"
-                    required
-                  />
+                  <Input id="fullName" value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="Your full name" required />
                 </div>
               )}
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="you@example.com"
-                  required
-                />
+                <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" required />
               </div>
               {!isForgot && (
                 <div className="space-y-2">
                   <Label htmlFor="password">Password</Label>
-                  <Input
-                    id="password"
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="••••••••"
-                    required
-                    minLength={6}
-                  />
+                  <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" required minLength={6} />
                 </div>
               )}
-              <Button type="submit" className="w-full" disabled={submitting}>
-                {submitting
-                  ? 'Loading...'
-                  : isForgot
-                    ? 'Send Reset Link'
-                    : isLogin
-                      ? 'Sign In'
-                      : 'Create Account'}
+              <Button type="submit" className="glow-gold w-full font-semibold" disabled={submitting}>
+                {submitting ? 'Loading...' : isForgot ? 'Send Reset Link' : isLogin ? 'Sign In' : 'Create Account'}
               </Button>
             </form>
 
             <div className="mt-6 space-y-2 text-center text-sm">
               {!isForgot && (
-                <button
-                  onClick={() => setIsForgot(true)}
-                  className="text-primary hover:underline"
-                >
+                <button onClick={() => setIsForgot(true)} className="text-soft-blue hover:text-energy-cyan transition-colors">
                   Forgot password?
                 </button>
               )}
               <div>
                 <button
-                  onClick={() => {
-                    setIsLogin(!isLogin);
-                    setIsForgot(false);
-                  }}
-                  className="text-primary hover:underline"
+                  onClick={() => { setIsLogin(!isLogin); setIsForgot(false); }}
+                  className="text-soft-blue hover:text-energy-cyan transition-colors"
                 >
                   {isLogin ? "Don't have an account? Sign up" : 'Already have an account? Sign in'}
                 </button>
               </div>
               {isForgot && (
-                <button
-                  onClick={() => setIsForgot(false)}
-                  className="text-primary hover:underline"
-                >
+                <button onClick={() => setIsForgot(false)} className="text-soft-blue hover:text-energy-cyan transition-colors">
                   Back to sign in
                 </button>
               )}

@@ -4,6 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { FileText, Video, TrendingUp, LogOut } from 'lucide-react';
+import logoPresencia from '@/assets/logo-presencia.png';
 
 const features = [
   { icon: FileText, title: 'Create Script', desc: 'Generate AI-powered scripts from your ideas', soon: true },
@@ -18,11 +19,7 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchProfile = async () => {
       if (!user) return;
-      const { data } = await supabase
-        .from('profiles')
-        .select('full_name')
-        .eq('id', user.id)
-        .single();
+      const { data } = await supabase.from('profiles').select('full_name').eq('id', user.id).single();
       if (data?.full_name) setFullName(data.full_name);
     };
     fetchProfile();
@@ -32,10 +29,13 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <nav className="border-b border-border bg-background">
+      <nav className="border-b border-border bg-background/80 backdrop-blur-xl">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
-          <span className="text-xl font-bold tracking-tight text-foreground">PRESENCIA</span>
-          <Button variant="ghost" size="sm" onClick={signOut}>
+          <div className="flex items-center gap-2">
+            <img src={logoPresencia} alt="Presencia" className="h-7 w-auto" />
+            <span className="text-lg font-bold tracking-tight text-foreground">Presencia</span>
+          </div>
+          <Button variant="ghost" size="sm" onClick={signOut} className="text-muted-foreground hover:text-foreground">
             <LogOut className="mr-2 h-4 w-4" />
             Sign Out
           </Button>
@@ -54,9 +54,9 @@ const Dashboard = () => {
 
         <div className="grid gap-6 sm:grid-cols-3">
           {features.map((f) => (
-            <Card key={f.title} className="relative overflow-hidden opacity-75">
+            <Card key={f.title} className="gradient-card relative overflow-hidden border-border opacity-75 transition-all duration-300 hover:opacity-100 hover:border-soft-blue/30">
               <CardHeader>
-                <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-lg bg-accent text-primary">
+                <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-lg bg-secondary text-energy-cyan">
                   <f.icon className="h-5 w-5" />
                 </div>
                 <CardTitle className="text-lg">{f.title}</CardTitle>
@@ -64,7 +64,7 @@ const Dashboard = () => {
               </CardHeader>
               <CardContent>
                 {f.soon && (
-                  <span className="inline-block rounded-full bg-muted px-3 py-1 text-xs font-medium text-muted-foreground">
+                  <span className="inline-block rounded-full bg-secondary px-3 py-1 text-xs font-medium text-muted-foreground">
                     Coming Soon
                   </span>
                 )}
