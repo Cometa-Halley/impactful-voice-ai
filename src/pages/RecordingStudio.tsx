@@ -3,7 +3,7 @@ import { useSearchParams, useNavigate } from 'react-router-dom';
 import AppLayout from '@/components/AppLayout';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ArrowLeft, Monitor, Smartphone, Hand } from 'lucide-react';
+import { ArrowLeft, Monitor, Smartphone, Hand, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -19,8 +19,12 @@ import PreRecordingChecks from '@/components/recording/PreRecordingChecks';
 import Teleprompter from '@/components/recording/Teleprompter';
 import RecordingControls from '@/components/recording/RecordingControls';
 import DevicePairing from '@/components/recording/DevicePairing';
+import PerformanceAnalysis from '@/components/recording/PerformanceAnalysis';
 
-type Phase = 'checks' | 'ready' | 'recording' | 'review';
+import { analyzePerformance, type AnalysisResult } from '@/lib/ai-service';
+import type { MethodologyKey } from '@/lib/methodologies';
+
+type Phase = 'checks' | 'ready' | 'recording' | 'review' | 'analyzing' | 'results';
 type DeviceMode = 'single' | 'multi';
 
 const RecordingStudio = () => {
@@ -32,6 +36,7 @@ const RecordingStudio = () => {
 
   // Script
   const [script, setScript] = useState('');
+  const [methodology, setMethodology] = useState<MethodologyKey>('sinek');
   const [scriptLoading, setScriptLoading] = useState(true);
 
   // Phase
@@ -51,6 +56,9 @@ const RecordingStudio = () => {
   const chunksRef = useRef<Blob[]>([]);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
+  // Analysis
+  const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
+
   // Hooks
   const { stream, videoRef, hasCamera, hasMicrophone, error, isLoading, startDevices, stopDevices } = useMediaDevices();
   const audioQuality = useAudioAnalysis(stream);
@@ -67,7 +75,7 @@ const RecordingStudio = () => {
 
   const gestureDetection = useGestureDetection(videoRef, phase === 'ready' && !isRecording, handleGesture);
 
-  // Load script
+  // Load script + methodology
   useEffect(() => {
     if (!scriptId) {
       setScript('No script loaded. Navigate from Create Video to load your script here.');
@@ -77,7 +85,7 @@ const RecordingStudio = () => {
     (async () => {
       const { data, error } = await supabase
         .from('scripts')
-        .select('hook, development, call_to_action')
+        .select('hook, development, call_to_action, methodology')
         .eq('id', scriptId)
         .single();
 
@@ -86,6 +94,7 @@ const RecordingStudio = () => {
         setScriptLoading(false);
         return;
       }
+      if (data.methodology) setMethodology(data.methodology as MethodologyKey);
       const parts = [data.hook, data.development, data.call_to_action].filter(Boolean);
       setScript(parts.join('\n\n'));
       setScriptLoading(false);
@@ -143,7 +152,71 @@ const RecordingStudio = () => {
   const recordedBlob = useMemo(() => {
     if (chunksRef.current.length === 0) return null;
     return new Blob(chunksRef.current, { type: 'video/webm' });
-  }, [phase]); // recalc when phase changes to review
+  }, [phase]);
+
+  // ── Save & Analyze ──
+  const handleSaveAndAnalyze = useCallback(async () => {
+    if (!recordedBlob || !user) return;
+    setPhase('analyzing');
+
+    try {
+      // 1. Upload video to storage
+      const fileName = `${user.id}/${crypto.randomUUID()}.webm`;
+      const { error: uploadError } = await supabase.storage
+        .from('videos')
+        .upload(fileName, recordedBlob, { contentType: 'video/webm' });
+
+      if (uploadError) throw new Error('Failed to upload video');
+
+      // 2. Create video record
+      const { data: videoRow, error: videoError } = await supabase
+        .from('videos')
+        .insert({ user_id: user.id, file_url: fileName, script_id: scriptId })
+        .select('id')
+        .single();
+
+      if (videoError || !videoRow) throw new Error('Failed to save video record');
+
+      // 3. Run AI analysis
+      const transcription = speechRecognition.transcript || script;
+      const result = await analyzePerformance(methodology, script, transcription);
+      setAnalysisResult(result);
+
+      // 4. Save feedback + update video score
+      const overallScoreNormalized = Math.round(result.overall_score * 10);
+
+      await Promise.all([
+        supabase.from('feedback').insert({
+          video_id: videoRow.id,
+          hook_score: result.hook_score,
+          clarity_score: result.clarity_score,
+          energy_score: result.energy_score,
+          coherence_score: result.coherence_score,
+          cta_strength: result.cta_strength,
+          suggestions: JSON.stringify(result.suggestions),
+        }),
+        supabase.from('videos').update({ analysis_score: overallScoreNormalized }).eq('id', videoRow.id),
+      ]);
+
+      setPhase('results');
+      toast.success('Analysis complete!');
+    } catch (err: any) {
+      console.error('Save & analyze error:', err);
+      toast.error(err.message || 'Something went wrong during analysis');
+      setPhase('review');
+    }
+  }, [recordedBlob, user, scriptId, methodology, script, speechRecognition.transcript]);
+
+  const handleReRecord = useCallback(() => {
+    setPhase('ready');
+    setDuration(0);
+    chunksRef.current = [];
+    setAnalysisResult(null);
+  }, []);
+
+  const handleFinish = useCallback(() => {
+    navigate('/my-videos');
+  }, [navigate]);
 
   return (
     <AppLayout>
@@ -159,6 +232,8 @@ const RecordingStudio = () => {
           {phase === 'ready' && 'Your environment is ready. Start recording!'}
           {phase === 'recording' && 'Recording in progress...'}
           {phase === 'review' && 'Review your recording.'}
+          {phase === 'analyzing' && 'AI is analyzing your performance...'}
+          {phase === 'results' && 'Your performance analysis is ready.'}
         </p>
       </motion.div>
 
@@ -221,7 +296,6 @@ const RecordingStudio = () => {
                     className="absolute inset-0 w-full h-full object-cover"
                     style={{ transform: 'scaleX(-1)' }}
                   />
-                  {/* Gesture indicator */}
                   {phase === 'ready' && (
                     <AnimatePresence>
                       {gestureDetection.gestureDetected && (
@@ -239,7 +313,6 @@ const RecordingStudio = () => {
                       )}
                     </AnimatePresence>
                   )}
-                  {/* Recording indicator */}
                   {isRecording && (
                     <div className="absolute top-3 left-3 flex items-center gap-2 bg-black/60 backdrop-blur px-3 py-1.5 rounded-full">
                       <motion.div
@@ -263,7 +336,6 @@ const RecordingStudio = () => {
               </div>
             </div>
 
-            {/* Controls */}
             <RecordingControls
               isRecording={isRecording}
               isPaused={isPaused}
@@ -275,7 +347,6 @@ const RecordingStudio = () => {
               duration={duration}
             />
 
-            {/* Speech recognition status */}
             {speechRecognition.isListening && (
               <div className="text-center">
                 <p className="text-xs text-muted-foreground">
@@ -304,13 +375,55 @@ const RecordingStudio = () => {
               </div>
             </div>
             <div className="flex justify-center gap-4">
-              <Button variant="outline" onClick={() => { setPhase('ready'); setDuration(0); chunksRef.current = []; }}>
+              <Button variant="outline" onClick={handleReRecord}>
                 Re-record
               </Button>
-              <Button className="glow-gold font-semibold" onClick={() => toast.success('Video saved! Analysis coming soon.')}>
+              <Button className="glow-gold font-semibold" onClick={handleSaveAndAnalyze}>
                 Save & Analyze
               </Button>
             </div>
+          </motion.div>
+        )}
+
+        {/* ── ANALYZING PHASE ── */}
+        {phase === 'analyzing' && (
+          <motion.div key="analyzing" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex flex-col items-center justify-center py-20 gap-6">
+            <motion.div
+              animate={{ rotate: 360 }}
+              transition={{ repeat: Infinity, duration: 2, ease: 'linear' }}
+            >
+              <Loader2 className="h-12 w-12 text-primary" />
+            </motion.div>
+            <div className="text-center space-y-2">
+              <h2 className="text-xl font-semibold text-foreground">Analyzing your performance...</h2>
+              <p className="text-sm text-muted-foreground max-w-sm">
+                Our AI is evaluating your delivery against the selected methodology. This may take a few seconds.
+              </p>
+            </div>
+            <div className="flex flex-wrap justify-center gap-2 max-w-md">
+              {['Hook strength', 'Message clarity', 'Energy level', 'Methodology coherence', 'CTA effectiveness'].map((item, i) => (
+                <motion.div
+                  key={item}
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: i * 0.3 }}
+                  className="bg-secondary/80 text-muted-foreground text-xs px-3 py-1.5 rounded-full border border-border"
+                >
+                  {item}
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
+        )}
+
+        {/* ── RESULTS PHASE ── */}
+        {phase === 'results' && analysisResult && (
+          <motion.div key="results" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+            <PerformanceAnalysis
+              analysis={analysisResult}
+              onReRecord={handleReRecord}
+              onFinish={handleFinish}
+            />
           </motion.div>
         )}
       </AnimatePresence>
