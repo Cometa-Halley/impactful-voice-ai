@@ -14,7 +14,7 @@ import {
   TrendingUp, GraduationCap, ShoppingBag, Lightbulb, Award, Filter,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { METHODOLOGIES, type MethodologyKey } from '@/lib/methodologies';
+import { METHODOLOGIES, getTranslatedMethodologies, type MethodologyKey } from '@/lib/methodologies';
 
 // CATEGORIES moved inside component for i18n
 
@@ -53,6 +53,7 @@ const fadeUp = {
 const Templates = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const methods = getTranslatedMethodologies(t);
   const [templates, setTemplates] = useState<Template[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState('all');
