@@ -300,5 +300,98 @@
       "addUrgency": "Add more urgency",
       "simplify": "Simplify the language"
     }
+  },
+  "methodologies": {
+    "sinek": {
+      "name": "Sinek — Inspire",
+      "tagline": "Start with Why",
+      "focus": "Purpose-driven communication that inspires action through belief.",
+      "questions": [
+        "Why do you do what you do? What is the deeper purpose behind your work or message?",
+        "How do you bring that purpose to life? What is your unique approach or process?",
+        "What is the tangible result — the product, service, or idea you are offering?",
+        "Who is your audience, and what do you want them to believe after hearing you?"
+      ],
+      "scriptStructure": ["WHY — Purpose & belief", "HOW — Process & differentiation", "WHAT — Offer & proof"]
+    },
+    "obama": {
+      "name": "Obama — Connect",
+      "tagline": "Tell your story",
+      "focus": "Emotional storytelling and personal narrative that creates deep connection.",
+      "questions": [
+        "What personal experience shaped your perspective on this topic?",
+        "What challenge or turning point made this story meaningful?",
+        "What universal truth or shared value does your story reveal?",
+        "What action or reflection do you want your audience to take away?"
+      ],
+      "scriptStructure": ["PERSONAL STORY — Anchor experience", "CONFLICT — Challenge & tension", "UNIVERSAL TRUTH — Shared value", "CALL TO UNITY — Collective action"]
+    },
+    "robbins": {
+      "name": "Robbins — Activate",
+      "tagline": "Move to action",
+      "focus": "High-energy persuasion that breaks limiting beliefs and drives immediate action.",
+      "questions": [
+        "What limiting belief or obstacle is holding your audience back right now?",
+        "What is the transformation or breakthrough you want them to experience?",
+        "What is the first concrete step they can take right now?",
+        "What emotional state do you want them to feel — urgency, empowerment, excitement?"
+      ],
+      "scriptStructure": ["PATTERN INTERRUPT — Break the status quo", "PAIN POINT — Expose the real problem", "VISION — Show the transformation", "ACTION COMMAND — Immediate next step"]
+    },
+    "jobs": {
+      "name": "Jobs — Present",
+      "tagline": "Simplify & wow",
+      "focus": "Structured product presentation with problem/solution clarity and theatrical reveals.",
+      "questions": [
+        "What problem does your audience face that they may not fully understand yet?",
+        "What is your solution, and what makes it fundamentally different?",
+        "What is the single most impressive fact, demo, or result you can show?",
+        "How do you want the audience to remember this — what is the \"one more thing\"?"
+      ],
+      "scriptStructure": ["PROBLEM — Set the stage", "SOLUTION — Introduce your answer", "DEMO/PROOF — Show, don't tell", "ONE MORE THING — Memorable close"]
+    }
+  },
+  "templateContent": {
+    "categories": {
+      "Viral": "Viral",
+      "Educational": "Educational",
+      "Sales": "Sales",
+      "Entrepreneur Tips": "Entrepreneur Tips",
+      "Authority Content": "Authority Content"
+    },
+    "titles": {
+      "Hot Take Opener": "Hot Take Opener",
+      "Story Hook Loop": "Story Hook Loop",
+      "Before/After Reveal": "Before/After Reveal",
+      "3-Step Framework": "3-Step Framework",
+      "Myth Buster": "Myth Buster",
+      "Quick Tip": "Quick Tip",
+      "Problem-Agitate-Solve": "Problem-Agitate-Solve",
+      "Social Proof Pitch": "Social Proof Pitch",
+      "Value Stack": "Value Stack",
+      "Lesson I Learned the Hard Way": "Lesson I Learned the Hard Way",
+      "Day in the Life": "Day in the Life",
+      "Unpopular Opinion": "Unpopular Opinion",
+      "Framework Breakdown": "Framework Breakdown",
+      "Case Study": "Case Study",
+      "Industry Prediction": "Industry Prediction"
+    },
+    "descriptions": {
+      "Hot Take Opener": "Start with a bold, controversial statement that stops the scroll and earns the share.",
+      "Story Hook Loop": "Open with a cliffhanger that keeps viewers watching until the end.",
+      "Before/After Reveal": "Show a dramatic transformation that makes viewers want to share with others.",
+      "3-Step Framework": "Teach a simple, repeatable process your audience can apply immediately.",
+      "Myth Buster": "Debunk a common misconception in your field with clear evidence.",
+      "Quick Tip": "Share one powerful insight that changes how your audience thinks or acts.",
+      "Problem-Agitate-Solve": "Classic sales framework: surface the pain, intensify it, then present your solution.",
+      "Social Proof Pitch": "Lead with real results and testimonials to build trust before the ask.",
+      "Value Stack": "Layer multiple benefits until the offer becomes irresistible.",
+      "Lesson I Learned the Hard Way": "Share a costly mistake and the lesson that changed your business trajectory.",
+      "Day in the Life": "Give an authentic look behind the scenes of your entrepreneurial journey.",
+      "Unpopular Opinion": "Challenge conventional business wisdom with your contrarian perspective.",
+      "Framework Breakdown": "Demonstrate deep expertise by explaining a concept most people oversimplify.",
+      "Case Study": "Walk through a real result you achieved, step by step, to prove your expertise.",
+      "Industry Prediction": "Position yourself as a thought leader by sharing a bold prediction about your industry."
+    }
   }
 }
