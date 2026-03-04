@@ -10,7 +10,7 @@ import {
   Loader2, Send, Zap, Heart, Target, Presentation, Check,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { METHODOLOGIES, type MethodologyKey } from '@/lib/methodologies';
+import { METHODOLOGIES, getTranslatedMethodologies, type MethodologyKey } from '@/lib/methodologies';
 import { generateScript, refineScript } from '@/lib/ai-service';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -47,6 +47,7 @@ const CreateVideo = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const methods = getTranslatedMethodologies(t);
   const [currentStep, setCurrentStep] = useState(0);
 
   // Step 1 — Methodology
