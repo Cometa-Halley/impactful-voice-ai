@@ -163,7 +163,7 @@ const Templates = () => {
 
               return (
                 <motion.div
-                  key={t.id}
+                  key={tmpl.id}
                   layout
                   initial="hidden"
                   animate="visible"
@@ -173,25 +173,25 @@ const Templates = () => {
                 >
                   <Card
                     className="gradient-card border-border cursor-pointer transition-all duration-300 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5 group h-full flex flex-col"
-                    onClick={() => setSelectedTemplate(t)}
+                    onClick={() => setSelectedTemplate(tmpl)}
                   >
                     <CardHeader className="pb-3 flex-1">
                       <div className="flex items-center justify-between mb-2">
                         <Badge variant="outline" className="bg-secondary/80 text-muted-foreground border-border text-xs">
-                          {t.category}
+                          {tmpl.category}
                         </Badge>
-                        {t.recommended_duration && (
+                        {tmpl.recommended_duration && (
                           <div className="flex items-center gap-1 text-xs text-muted-foreground">
                             <Clock className="h-3 w-3" />
-                            {t.recommended_duration}
+                            {tmpl.recommended_duration}
                           </div>
                         )}
                       </div>
                       <CardTitle className="text-base group-hover:text-primary transition-colors">
-                        {t.title ?? t.category}
+                        {tmpl.title ?? tmpl.category}
                       </CardTitle>
                       <CardDescription className="text-sm line-clamp-2">
-                        {t.description}
+                        {tmpl.description}
                       </CardDescription>
                     </CardHeader>
                     <CardContent className="pt-0">
