@@ -1,3 +1,5 @@
+import { TFunction } from 'i18next';
+
 export type MethodologyKey = 'sinek' | 'obama' | 'robbins' | 'jobs';
 
 export interface Methodology {
@@ -10,6 +12,7 @@ export interface Methodology {
   analysisCriteria: string[];
 }
 
+// Static English fallback (used by edge functions / non-React contexts)
 export const METHODOLOGIES: Record<MethodologyKey, Methodology> = {
   sinek: {
     key: 'sinek',
@@ -87,6 +90,33 @@ export const METHODOLOGIES: Record<MethodologyKey, Methodology> = {
       'Memorable closing moment',
     ],
   },
+};
+
+/**
+ * Returns methodologies with translated UI strings.
+ * analysisCriteria stays in English (used by AI analysis backend).
+ */
+export const getTranslatedMethodologies = (t: TFunction): Record<MethodologyKey, Methodology> => {
+  const keys: MethodologyKey[] = ['sinek', 'obama', 'robbins', 'jobs'];
+  const result = {} as Record<MethodologyKey, Methodology>;
+
+  for (const key of keys) {
+    const base = METHODOLOGIES[key];
+    result[key] = {
+      ...base,
+      name: t(`methodologies.${key}.name`, base.name),
+      tagline: t(`methodologies.${key}.tagline`, base.tagline),
+      focus: t(`methodologies.${key}.focus`, base.focus),
+      questions: (t(`methodologies.${key}.questions`, { returnObjects: true }) as string[] | string) instanceof Array
+        ? (t(`methodologies.${key}.questions`, { returnObjects: true }) as string[])
+        : base.questions,
+      scriptStructure: (t(`methodologies.${key}.scriptStructure`, { returnObjects: true }) as string[] | string) instanceof Array
+        ? (t(`methodologies.${key}.scriptStructure`, { returnObjects: true }) as string[])
+        : base.scriptStructure,
+    };
+  }
+
+  return result;
 };
 
 export const getMethodology = (key: MethodologyKey): Methodology => METHODOLOGIES[key];
