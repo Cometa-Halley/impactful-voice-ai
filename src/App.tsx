@@ -14,6 +14,7 @@ import CreateVideo from "./pages/CreateVideo";
 import MyVideos from "./pages/MyVideos";
 import Templates from "./pages/Templates";
 import Profile from "./pages/Profile";
+import RecordingStudio from "./pages/RecordingStudio";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -35,6 +36,7 @@ const App = () => (
             <Route path="/my-videos" element={<ProtectedRoute><MyVideos /></ProtectedRoute>} />
             <Route path="/templates" element={<ProtectedRoute><Templates /></ProtectedRoute>} />
             <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+            <Route path="/recording-studio" element={<ProtectedRoute><RecordingStudio /></ProtectedRoute>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>

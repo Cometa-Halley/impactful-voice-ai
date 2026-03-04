@@ -14,6 +14,7 @@ import { generateScript, refineScript } from '@/lib/ai-service';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { useNavigate } from 'react-router-dom';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 24 },
@@ -50,6 +51,7 @@ interface ChatMessage {
 
 const CreateVideo = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(0);
 
   // Step 1 — Methodology
@@ -154,7 +156,7 @@ const CreateVideo = () => {
     if (!user || !selectedMethodology || !script) return;
     setIsSaving(true);
     try {
-      const { error } = await supabase.from('scripts').insert({
+      const { data, error } = await supabase.from('scripts').insert({
         user_id: user.id,
         methodology: selectedMethodology,
         hook: script.split('\n\n')[0] || '',
@@ -162,10 +164,11 @@ const CreateVideo = () => {
         call_to_action: '',
         duration: '60s',
         format: 'vertical',
-      });
+      }).select('id').single();
       if (error) throw error;
       setSaved(true);
-      toast.success('Script saved! Ready to record.');
+      toast.success('Script saved! Redirecting to studio...');
+      setTimeout(() => navigate(`/recording-studio?scriptId=${data.id}`), 1000);
     } catch (e: any) {
       toast.error(e.message || 'Failed to save script');
     } finally {
