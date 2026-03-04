@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { FileText, Video, TrendingUp, LogOut } from 'lucide-react';
 import logoPresencia from '@/assets/logo-presencia.png';
+import ParticleBackground from '@/components/ParticleBackground';
 
 const features = [
   { icon: FileText, title: 'Create Script', desc: 'Generate AI-powered scripts from your ideas', soon: true },
