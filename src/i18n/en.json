@@ -252,5 +252,53 @@
     "high": "high",
     "medium": "medium",
     "low": "low"
+  },
+  "createVideo": {
+    "title": "Create Video",
+    "subtitle": "Follow the flow to craft your high-impact message.",
+    "steps": {
+      "impact": "Impact",
+      "strategy": "Strategy",
+      "script": "Script",
+      "refine": "Refine",
+      "validate": "Validate"
+    },
+    "chooseImpact": "Choose the communication impact you want to create.",
+    "continue": "Continue",
+    "strategicQuestions": "Strategic Questions",
+    "answersShape": "Answer thoughtfully. Your answers will shape the AI-generated script.",
+    "writePlaceholder": "Write your answer here...",
+    "back": "Back",
+    "generateScript": "Generate Script",
+    "yourScript": "Your Script",
+    "aiCrafting": "AI is crafting your script...",
+    "reviewScript": "Review your generated script below.",
+    "generating": "Generating...",
+    "refineScript": "Refine Script",
+    "refineWithAI": "Refine with AI",
+    "refineDesc": "Tell the AI how to improve your script. Each change updates it in real-time.",
+    "currentScript": "Current Script",
+    "chatPlaceholder": "e.g. Make the hook more provocative...",
+    "validateContinue": "Validate & Continue",
+    "validateScript": "Validate Your Script",
+    "validateDesc": "Review the final version. Once validated, you'll unlock the recording phase.",
+    "finalScript": "Final Script",
+    "readyReview": "Ready for review",
+    "scriptStructure": "Script Structure",
+    "backToRefine": "Back to Refine",
+    "saved": "Saved",
+    "saving": "Saving...",
+    "validateUnlock": "Validate & Unlock Recording",
+    "scriptSaved": "Script saved! Redirecting to studio...",
+    "failedGenerate": "Failed to generate script",
+    "failedRefine": "Failed to refine script",
+    "failedSave": "Failed to save script",
+    "quickRefinements": {
+      "moreDirect": "Make it more direct",
+      "reduce30": "Reduce to 30 seconds",
+      "moreEmotional": "Make it more emotional",
+      "addUrgency": "Add more urgency",
+      "simplify": "Simplify the language"
+    }
   }
 }
