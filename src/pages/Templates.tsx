@@ -59,10 +59,20 @@ const fadeUp = {
 
 const Templates = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [templates, setTemplates] = useState<Template[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState('all');
   const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(null);
+
+  const CATEGORIES = [
+    { key: 'all', label: t('templates.all'), icon: Filter },
+    { key: 'Viral', label: t('templates.viral'), icon: TrendingUp },
+    { key: 'Educational', label: t('templates.educational'), icon: GraduationCap },
+    { key: 'Sales', label: t('templates.sales'), icon: ShoppingBag },
+    { key: 'Entrepreneur Tips', label: t('templates.entrepreneur'), icon: Lightbulb },
+    { key: 'Authority Content', label: t('templates.authority'), icon: Award },
+  ];
 
   useEffect(() => {
     supabase
@@ -92,10 +102,8 @@ const Templates = () => {
         transition={{ duration: 0.5 }}
         className="mb-8"
       >
-        <h1 className="text-3xl font-bold text-foreground">Template Library</h1>
-        <p className="mt-2 text-muted-foreground">
-          Proven communication structures to accelerate your message. Pick one, customize it, record.
-        </p>
+        <h1 className="text-3xl font-bold text-foreground">{t('templates.title')}</h1>
+        <p className="mt-2 text-muted-foreground">{t('templates.subtitle')}</p>
       </motion.div>
 
       {/* Category Filter */}
