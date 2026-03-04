@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
+import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import AppLayout from '@/components/AppLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -25,20 +26,6 @@ const fadeUp = {
   }),
 };
 
-const actions = [
-  { icon: Video, title: 'Create Video', desc: 'Start a new AI-powered session', to: '/create-video', color: 'text-primary' },
-  { icon: Film, title: 'My Videos', desc: 'View your recordings', to: '/my-videos', color: 'text-accent' },
-  { icon: LayoutTemplate, title: 'Templates', desc: 'Explore frameworks', to: '/templates', color: 'text-soft-blue' },
-];
-
-const CONFIDENCE_LEVELS = [
-  { min: 0, label: 'Getting Started', emoji: '🌱' },
-  { min: 3, label: 'Finding Your Voice', emoji: '🎯' },
-  { min: 6, label: 'Building Momentum', emoji: '🔥' },
-  { min: 10, label: 'Confident Speaker', emoji: '⚡' },
-  { min: 15, label: 'Communication Pro', emoji: '🏆' },
-];
-
 interface FeedbackRow {
   hook_score: number | null;
   clarity_score: number | null;
@@ -49,12 +36,19 @@ interface FeedbackRow {
   video_id: string;
 }
 
-function getConfidenceLevel(videoCount: number) {
-  let level = CONFIDENCE_LEVELS[0];
-  for (const l of CONFIDENCE_LEVELS) {
+function getConfidenceLevel(videoCount: number, t: (key: string) => string) {
+  const levels = [
+    { min: 0, label: t('dashboard.confidenceLevels.gettingStarted'), emoji: '🌱' },
+    { min: 3, label: t('dashboard.confidenceLevels.findingVoice'), emoji: '🎯' },
+    { min: 6, label: t('dashboard.confidenceLevels.buildingMomentum'), emoji: '🔥' },
+    { min: 10, label: t('dashboard.confidenceLevels.confidentSpeaker'), emoji: '⚡' },
+    { min: 15, label: t('dashboard.confidenceLevels.communicationPro'), emoji: '🏆' },
+  ];
+  let level = levels[0];
+  for (const l of levels) {
     if (videoCount >= l.min) level = l;
   }
-  const nextLevel = CONFIDENCE_LEVELS[CONFIDENCE_LEVELS.indexOf(level) + 1];
+  const nextLevel = levels[levels.indexOf(level) + 1];
   const progressToNext = nextLevel
     ? ((videoCount - level.min) / (nextLevel.min - level.min)) * 100
     : 100;
@@ -63,6 +57,7 @@ function getConfidenceLevel(videoCount: number) {
 
 const Dashboard = () => {
   const { user } = useAuth();
+  const { t } = useTranslation();
   const [fullName, setFullName] = useState('');
   const [stats, setStats] = useState({ videos: 0, scripts: 0 });
   const [feedbackHistory, setFeedbackHistory] = useState<FeedbackRow[]>([]);
@@ -87,34 +82,27 @@ const Dashboard = () => {
   }, [user]);
 
   const displayName = fullName || user?.email?.split('@')[0] || 'there';
-  const confidence = getConfidenceLevel(stats.videos);
+  const confidence = getConfidenceLevel(stats.videos, t);
   const hasFeedback = feedbackHistory.length > 0;
 
-  // Trend chart data
   const trendData = feedbackHistory.map((f, i) => ({
     session: `#${i + 1}`,
     hook: f.hook_score ?? 0,
     clarity: f.clarity_score ?? 0,
     energy: f.energy_score ?? 0,
     cta: f.cta_strength ?? 0,
-    overall: Math.round(
-      ((f.hook_score ?? 0) + (f.clarity_score ?? 0) + (f.energy_score ?? 0) +
-       (f.coherence_score ?? 0) + (f.cta_strength ?? 0)) / 5 * 10
-    ) / 10,
   }));
 
-  // Radar data (latest vs first)
   const latest = feedbackHistory[feedbackHistory.length - 1];
   const first = feedbackHistory[0];
   const radarData = latest ? [
-    { metric: 'Hook', current: latest.hook_score ?? 0, first: first?.hook_score ?? 0 },
-    { metric: 'Clarity', current: latest.clarity_score ?? 0, first: first?.clarity_score ?? 0 },
-    { metric: 'Energy', current: latest.energy_score ?? 0, first: first?.energy_score ?? 0 },
-    { metric: 'Coherence', current: latest.coherence_score ?? 0, first: first?.coherence_score ?? 0 },
-    { metric: 'CTA', current: latest.cta_strength ?? 0, first: first?.cta_strength ?? 0 },
+    { metric: t('dashboard.hook'), current: latest.hook_score ?? 0, first: first?.hook_score ?? 0 },
+    { metric: t('dashboard.clarity'), current: latest.clarity_score ?? 0, first: first?.clarity_score ?? 0 },
+    { metric: t('dashboard.energy'), current: latest.energy_score ?? 0, first: first?.energy_score ?? 0 },
+    { metric: t('dashboard.coherence'), current: latest.coherence_score ?? 0, first: first?.coherence_score ?? 0 },
+    { metric: t('dashboard.cta'), current: latest.cta_strength ?? 0, first: first?.cta_strength ?? 0 },
   ] : [];
 
-  // Average scores
   const avgScores = hasFeedback ? {
     hook: avg(feedbackHistory.map(f => f.hook_score)),
     clarity: avg(feedbackHistory.map(f => f.clarity_score)),
@@ -123,24 +111,28 @@ const Dashboard = () => {
     cta: avg(feedbackHistory.map(f => f.cta_strength)),
   } : null;
 
-  // Improvement delta (last 3 vs first 3)
   const improvement = feedbackHistory.length >= 2 ? calcImprovement(feedbackHistory) : null;
+
+  const actions = [
+    { icon: Video, title: t('nav.createVideo'), desc: t('dashboard.createVideoDesc'), to: '/create-video', color: 'text-primary' },
+    { icon: Film, title: t('nav.myVideos'), desc: t('dashboard.myVideosDesc'), to: '/my-videos', color: 'text-accent' },
+    { icon: LayoutTemplate, title: t('nav.templates'), desc: t('dashboard.templatesDesc'), to: '/templates', color: 'text-soft-blue' },
+  ];
 
   return (
     <AppLayout>
-      {/* Header */}
       <motion.div initial="hidden" animate="visible" variants={fadeUp} custom={0} className="mb-8">
-        <h1 className="text-3xl font-bold text-foreground">Welcome, {displayName}</h1>
-        <p className="mt-2 text-muted-foreground">Track your growth as a confident communicator.</p>
+        <h1 className="text-3xl font-bold text-foreground">{t('dashboard.welcome', { name: displayName })}</h1>
+        <p className="mt-2 text-muted-foreground">{t('dashboard.subtitle')}</p>
       </motion.div>
 
-      {/* Top row: Stats + Confidence */}
+      {/* Stats */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-8">
         {[
-          { label: 'Videos', value: stats.videos, icon: Film, color: 'text-accent' },
-          { label: 'Scripts', value: stats.scripts, icon: LayoutTemplate, color: 'text-soft-blue' },
-          { label: 'Avg Score', value: avgScores ? `${((avgScores.hook + avgScores.clarity + avgScores.energy + avgScores.coherence + avgScores.cta) / 5).toFixed(1)}/10` : '—', icon: Trophy, color: 'text-primary' },
-          { label: 'Sessions', value: feedbackHistory.length, icon: Calendar, color: 'text-energy-cyan' },
+          { label: t('dashboard.videos'), value: stats.videos, icon: Film, color: 'text-accent' },
+          { label: t('dashboard.scripts'), value: stats.scripts, icon: LayoutTemplate, color: 'text-soft-blue' },
+          { label: t('dashboard.avgScore'), value: avgScores ? `${((avgScores.hook + avgScores.clarity + avgScores.energy + avgScores.coherence + avgScores.cta) / 5).toFixed(1)}/10` : '—', icon: Trophy, color: 'text-primary' },
+          { label: t('dashboard.sessions'), value: feedbackHistory.length, icon: Calendar, color: 'text-energy-cyan' },
         ].map((s, i) => (
           <motion.div key={s.label} initial="hidden" animate="visible" variants={fadeUp} custom={i + 1}>
             <Card className="gradient-card border-border">
@@ -170,16 +162,13 @@ const Dashboard = () => {
                   <h3 className="font-semibold text-foreground">{confidence.label}</h3>
                   <p className="text-xs text-muted-foreground">
                     {confidence.nextLevel
-                      ? `${confidence.nextLevel.min - stats.videos} more videos to "${confidence.nextLevel.label}"`
-                      : 'Maximum level reached!'}
+                      ? t('dashboard.moreVideosTo', { count: confidence.nextLevel.min - stats.videos, level: confidence.nextLevel.label })
+                      : t('dashboard.maxLevel')}
                   </p>
                 </div>
               </div>
               {improvement !== null && (
-                <Badge
-                  variant="outline"
-                  className={`gap-1 ${improvement >= 0 ? 'bg-green-500/15 text-green-400 border-green-500/25' : 'bg-destructive/15 text-destructive border-destructive/25'}`}
-                >
+                <Badge variant="outline" className={`gap-1 ${improvement >= 0 ? 'bg-green-500/15 text-green-400 border-green-500/25' : 'bg-destructive/15 text-destructive border-destructive/25'}`}>
                   <TrendingUp className={`h-3 w-3 ${improvement < 0 ? 'rotate-180' : ''}`} />
                   {improvement >= 0 ? '+' : ''}{improvement.toFixed(1)} avg
                 </Badge>
@@ -190,18 +179,17 @@ const Dashboard = () => {
         </Card>
       </motion.div>
 
-      {/* Charts Row */}
+      {/* Charts */}
       {hasFeedback && (
         <div className="grid gap-4 lg:grid-cols-5 mb-8">
-          {/* Trend Chart */}
           <motion.div initial="hidden" animate="visible" variants={fadeUp} custom={6} className="lg:col-span-3">
             <Card className="gradient-card border-border h-full">
               <CardHeader className="pb-2">
                 <CardTitle className="text-base flex items-center gap-2">
                   <TrendingUp className="h-4 w-4 text-primary" />
-                  Performance Over Time
+                  {t('dashboard.performanceOverTime')}
                 </CardTitle>
-                <CardDescription>Your scores across recording sessions</CardDescription>
+                <CardDescription>{t('dashboard.performanceDesc')}</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="h-[240px]">
@@ -223,33 +211,23 @@ const Dashboard = () => {
                       </defs>
                       <XAxis dataKey="session" tick={{ fill: 'hsl(250,20%,55%)', fontSize: 11 }} axisLine={false} tickLine={false} />
                       <YAxis domain={[0, 10]} tick={{ fill: 'hsl(250,20%,55%)', fontSize: 11 }} axisLine={false} tickLine={false} />
-                      <Tooltip
-                        contentStyle={{
-                          background: 'hsl(260,50%,11%)',
-                          border: '1px solid hsl(260,30%,18%)',
-                          borderRadius: '8px',
-                          fontSize: '12px',
-                          color: 'hsl(240,20%,95%)',
-                        }}
-                      />
-                      <Area type="monotone" dataKey="hook" stroke="hsl(40,92%,55%)" fill="url(#hookGrad)" strokeWidth={2} name="Hook" />
-                      <Area type="monotone" dataKey="clarity" stroke="hsl(195,85%,50%)" fill="url(#clarityGrad)" strokeWidth={2} name="Clarity" />
-                      <Area type="monotone" dataKey="energy" stroke="hsl(292,80%,63%)" fill="url(#energyGrad)" strokeWidth={2} name="Energy" />
-                      <Area type="monotone" dataKey="cta" stroke="hsl(250,40%,65%)" fill="none" strokeWidth={2} strokeDasharray="4 4" name="CTA" />
+                      <Tooltip contentStyle={{ background: 'hsl(260,50%,11%)', border: '1px solid hsl(260,30%,18%)', borderRadius: '8px', fontSize: '12px', color: 'hsl(240,20%,95%)' }} />
+                      <Area type="monotone" dataKey="hook" stroke="hsl(40,92%,55%)" fill="url(#hookGrad)" strokeWidth={2} name={t('dashboard.hook')} />
+                      <Area type="monotone" dataKey="clarity" stroke="hsl(195,85%,50%)" fill="url(#clarityGrad)" strokeWidth={2} name={t('dashboard.clarity')} />
+                      <Area type="monotone" dataKey="energy" stroke="hsl(292,80%,63%)" fill="url(#energyGrad)" strokeWidth={2} name={t('dashboard.energy')} />
+                      <Area type="monotone" dataKey="cta" stroke="hsl(250,40%,65%)" fill="none" strokeWidth={2} strokeDasharray="4 4" name={t('dashboard.cta')} />
                     </AreaChart>
                   </ResponsiveContainer>
                 </div>
-                {/* Legend */}
                 <div className="flex flex-wrap gap-4 mt-3 justify-center">
                   {[
-                    { label: 'Hook', color: 'bg-primary' },
-                    { label: 'Clarity', color: 'bg-accent' },
-                    { label: 'Energy', color: 'bg-energy-cyan' },
-                    { label: 'CTA', color: 'bg-soft-blue' },
+                    { label: t('dashboard.hook'), color: 'bg-primary' },
+                    { label: t('dashboard.clarity'), color: 'bg-accent' },
+                    { label: t('dashboard.energy'), color: 'bg-energy-cyan' },
+                    { label: t('dashboard.cta'), color: 'bg-soft-blue' },
                   ].map(l => (
                     <div key={l.label} className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                      <div className={`h-2 w-2 rounded-full ${l.color}`} />
-                      {l.label}
+                      <div className={`h-2 w-2 rounded-full ${l.color}`} /> {l.label}
                     </div>
                   ))}
                 </div>
@@ -257,16 +235,15 @@ const Dashboard = () => {
             </Card>
           </motion.div>
 
-          {/* Radar Chart */}
           <motion.div initial="hidden" animate="visible" variants={fadeUp} custom={7} className="lg:col-span-2">
             <Card className="gradient-card border-border h-full">
               <CardHeader className="pb-2">
                 <CardTitle className="text-base flex items-center gap-2">
                   <Target className="h-4 w-4 text-primary" />
-                  Skill Profile
+                  {t('dashboard.skillProfile')}
                 </CardTitle>
                 <CardDescription>
-                  {feedbackHistory.length > 1 ? 'Latest vs first session' : 'Your current profile'}
+                  {feedbackHistory.length > 1 ? t('dashboard.latestVsFirst') : t('dashboard.currentProfile')}
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -276,19 +253,19 @@ const Dashboard = () => {
                       <PolarGrid stroke="hsl(260,30%,18%)" />
                       <PolarAngleAxis dataKey="metric" tick={{ fill: 'hsl(250,20%,55%)', fontSize: 11 }} />
                       {feedbackHistory.length > 1 && (
-                        <Radar name="First" dataKey="first" stroke="hsl(260,30%,40%)" fill="hsl(260,30%,40%)" fillOpacity={0.15} strokeWidth={1} strokeDasharray="4 4" />
+                        <Radar name={t('dashboard.first')} dataKey="first" stroke="hsl(260,30%,40%)" fill="hsl(260,30%,40%)" fillOpacity={0.15} strokeWidth={1} strokeDasharray="4 4" />
                       )}
-                      <Radar name="Current" dataKey="current" stroke="hsl(40,92%,55%)" fill="hsl(40,92%,55%)" fillOpacity={0.2} strokeWidth={2} />
+                      <Radar name={t('dashboard.current')} dataKey="current" stroke="hsl(40,92%,55%)" fill="hsl(40,92%,55%)" fillOpacity={0.2} strokeWidth={2} />
                     </RadarChart>
                   </ResponsiveContainer>
                 </div>
                 {feedbackHistory.length > 1 && (
                   <div className="flex gap-4 justify-center mt-2">
                     <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                      <div className="h-2 w-2 rounded-full bg-primary" /> Current
+                      <div className="h-2 w-2 rounded-full bg-primary" /> {t('dashboard.current')}
                     </div>
                     <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                      <div className="h-2 w-2 rounded-full bg-muted-foreground" /> First
+                      <div className="h-2 w-2 rounded-full bg-muted-foreground" /> {t('dashboard.first')}
                     </div>
                   </div>
                 )}
@@ -298,20 +275,20 @@ const Dashboard = () => {
         </div>
       )}
 
-      {/* Metric Breakdown Cards */}
+      {/* Metric Breakdown */}
       {avgScores && (
         <motion.div initial="hidden" animate="visible" variants={fadeUp} custom={8} className="mb-8">
           <h2 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
             <Flame className="h-5 w-5 text-primary" />
-            Your Strengths & Growth Areas
+            {t('dashboard.strengthsGrowth')}
           </h2>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
             {[
-              { key: 'hook', label: 'Hook', icon: Target, score: avgScores.hook },
-              { key: 'clarity', label: 'Clarity', icon: Lightbulb, score: avgScores.clarity },
-              { key: 'energy', label: 'Energy', icon: Zap, score: avgScores.energy },
-              { key: 'coherence', label: 'Coherence', icon: TrendingUp, score: avgScores.coherence },
-              { key: 'cta', label: 'CTA', icon: Megaphone, score: avgScores.cta },
+              { key: 'hook', label: t('dashboard.hook'), icon: Target, score: avgScores.hook },
+              { key: 'clarity', label: t('dashboard.clarity'), icon: Lightbulb, score: avgScores.clarity },
+              { key: 'energy', label: t('dashboard.energy'), icon: Zap, score: avgScores.energy },
+              { key: 'coherence', label: t('dashboard.coherence'), icon: TrendingUp, score: avgScores.coherence },
+              { key: 'cta', label: t('dashboard.cta'), icon: Megaphone, score: avgScores.cta },
             ].map(m => {
               const isStrength = m.score >= 7;
               const isWeak = m.score < 5;
@@ -323,17 +300,8 @@ const Dashboard = () => {
                     <span className={`text-xl font-bold ${isStrength ? 'text-green-400' : isWeak ? 'text-destructive' : 'text-primary'}`}>
                       {m.score.toFixed(1)}
                     </span>
-                    <Badge
-                      variant="outline"
-                      className={`text-[10px] ${
-                        isStrength
-                          ? 'bg-green-500/15 text-green-400 border-green-500/25'
-                          : isWeak
-                            ? 'bg-destructive/15 text-destructive border-destructive/25'
-                            : 'bg-primary/15 text-primary border-primary/25'
-                      }`}
-                    >
-                      {isStrength ? 'Strength' : isWeak ? 'Focus area' : 'Growing'}
+                    <Badge variant="outline" className={`text-[10px] ${isStrength ? 'bg-green-500/15 text-green-400 border-green-500/25' : isWeak ? 'bg-destructive/15 text-destructive border-destructive/25' : 'bg-primary/15 text-primary border-primary/25'}`}>
+                      {isStrength ? t('dashboard.strength') : isWeak ? t('dashboard.focusArea') : t('dashboard.growing')}
                     </Badge>
                   </CardContent>
                 </Card>
@@ -343,7 +311,7 @@ const Dashboard = () => {
         </motion.div>
       )}
 
-      {/* Empty state for new users */}
+      {/* Empty state */}
       {!hasFeedback && !loading && (
         <motion.div initial="hidden" animate="visible" variants={fadeUp} custom={6}>
           <Card className="gradient-card border-border text-center py-12 mb-8">
@@ -351,13 +319,11 @@ const Dashboard = () => {
               <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-secondary text-muted-foreground">
                 <TrendingUp className="h-8 w-8" />
               </div>
-              <h3 className="text-lg font-semibold text-foreground">No performance data yet</h3>
-              <p className="text-sm text-muted-foreground max-w-sm">
-                Record and analyze your first video to start tracking your communication growth. Each session adds to your skill profile.
-              </p>
+              <h3 className="text-lg font-semibold text-foreground">{t('dashboard.noDataTitle')}</h3>
+              <p className="text-sm text-muted-foreground max-w-sm">{t('dashboard.noDataDesc')}</p>
               <Link to="/create-video">
                 <Button className="glow-gold font-semibold gap-2 mt-2">
-                  Create Your First Video <ArrowRight className="h-4 w-4" />
+                  {t('dashboard.createFirst')} <ArrowRight className="h-4 w-4" />
                 </Button>
               </Link>
             </CardContent>
@@ -367,7 +333,7 @@ const Dashboard = () => {
 
       {/* Quick actions */}
       <motion.div initial="hidden" animate="visible" variants={fadeUp} custom={9}>
-        <h2 className="text-lg font-semibold text-foreground mb-4">Quick Actions</h2>
+        <h2 className="text-lg font-semibold text-foreground mb-4">{t('dashboard.quickActions')}</h2>
       </motion.div>
       <div className="grid gap-4 sm:grid-cols-3">
         {actions.map((a, i) => (
@@ -395,8 +361,6 @@ const Dashboard = () => {
   );
 };
 
-// ── Helpers ──
-
 function avg(values: (number | null)[]): number {
   const valid = values.filter((v): v is number => v !== null);
   if (valid.length === 0) return 0;
@@ -407,14 +371,11 @@ function calcImprovement(data: FeedbackRow[]): number {
   const scoreOf = (f: FeedbackRow) =>
     ((f.hook_score ?? 0) + (f.clarity_score ?? 0) + (f.energy_score ?? 0) +
      (f.coherence_score ?? 0) + (f.cta_strength ?? 0)) / 5;
-
   const take = Math.min(3, Math.floor(data.length / 2));
   const firstSlice = data.slice(0, take);
   const lastSlice = data.slice(-take);
-
   const firstAvg = firstSlice.reduce((s, f) => s + scoreOf(f), 0) / firstSlice.length;
   const lastAvg = lastSlice.reduce((s, f) => s + scoreOf(f), 0) / lastSlice.length;
-
   return lastAvg - firstAvg;
 }
 

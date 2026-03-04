@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
+import { useTranslation } from 'react-i18next';
 import AppLayout from '@/components/AppLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Film } from 'lucide-react';
@@ -8,6 +9,7 @@ import { motion } from 'framer-motion';
 
 const MyVideos = () => {
   const { user } = useAuth();
+  const { t } = useTranslation();
   const [videos, setVideos] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -32,8 +34,8 @@ const MyVideos = () => {
         transition={{ duration: 0.5 }}
         className="mb-10"
       >
-        <h1 className="text-3xl font-bold text-foreground">My Videos</h1>
-        <p className="mt-2 text-muted-foreground">Your library of recorded video sessions.</p>
+        <h1 className="text-3xl font-bold text-foreground">{t('myVideos.title')}</h1>
+        <p className="mt-2 text-muted-foreground">{t('myVideos.subtitle')}</p>
       </motion.div>
 
       {loading ? (
@@ -51,10 +53,8 @@ const MyVideos = () => {
               <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-secondary text-muted-foreground">
                 <Film className="h-8 w-8" />
               </div>
-              <h3 className="text-lg font-semibold text-foreground">No videos yet</h3>
-              <p className="text-sm text-muted-foreground max-w-sm">
-                Create your first video to see it here. Each recording includes AI-powered analysis and feedback.
-              </p>
+              <h3 className="text-lg font-semibold text-foreground">{t('myVideos.noVideosTitle')}</h3>
+              <p className="text-sm text-muted-foreground max-w-sm">{t('myVideos.noVideosDesc')}</p>
             </CardContent>
           </Card>
         </motion.div>

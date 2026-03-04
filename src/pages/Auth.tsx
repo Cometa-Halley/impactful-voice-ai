@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Navigate, Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -10,6 +11,7 @@ import logoPresencia from '@/assets/logo-presencia.png';
 
 const Auth = () => {
   const { user, loading, signIn, signUp, resetPassword } = useAuth();
+  const { t } = useTranslation();
   const [isLogin, setIsLogin] = useState(true);
   const [isForgot, setIsForgot] = useState(false);
   const [email, setEmail] = useState('');
@@ -36,7 +38,7 @@ const Auth = () => {
       if (error) {
         toast.error(error.message);
       } else {
-        toast.success('Check your email for the reset link');
+        toast.success(t('auth.checkEmail'));
         setIsForgot(false);
       }
       setSubmitting(false);
@@ -48,7 +50,7 @@ const Auth = () => {
       if (error) toast.error(error.message);
     } else {
       if (!fullName.trim()) {
-        toast.error('Please enter your full name');
+        toast.error(t('auth.enterFullName'));
         setSubmitting(false);
         return;
       }
@@ -56,7 +58,7 @@ const Auth = () => {
       if (error) {
         toast.error(error.message);
       } else {
-        toast.success('Account created! Check your email to confirm.');
+        toast.success(t('auth.accountCreated'));
       }
     }
     setSubmitting(false);
@@ -72,43 +74,39 @@ const Auth = () => {
         <Card className="gradient-card border-border">
           <CardHeader className="text-center">
             <CardTitle className="text-foreground">
-              {isForgot ? 'Reset Password' : isLogin ? 'Welcome back' : 'Create your account'}
+              {isForgot ? t('auth.resetPassword') : isLogin ? t('auth.welcomeBack') : t('auth.createAccount')}
             </CardTitle>
             <CardDescription>
-              {isForgot
-                ? "Enter your email and we'll send you a reset link"
-                : isLogin
-                  ? 'Sign in to continue to Presencia'
-                  : 'Start communicating with intention'}
+              {isForgot ? t('auth.resetDesc') : isLogin ? t('auth.signInDesc') : t('auth.signUpDesc')}
             </CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
               {!isLogin && !isForgot && (
                 <div className="space-y-2">
-                  <Label htmlFor="fullName">Full Name</Label>
-                  <Input id="fullName" value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="Your full name" required />
+                  <Label htmlFor="fullName">{t('auth.fullName')}</Label>
+                  <Input id="fullName" value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder={t('auth.fullNamePlaceholder')} required />
                 </div>
               )}
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email">{t('auth.email')}</Label>
                 <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" required />
               </div>
               {!isForgot && (
                 <div className="space-y-2">
-                  <Label htmlFor="password">Password</Label>
+                  <Label htmlFor="password">{t('auth.password')}</Label>
                   <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" required minLength={6} />
                 </div>
               )}
               <Button type="submit" className="glow-gold w-full font-semibold" disabled={submitting}>
-                {submitting ? 'Loading...' : isForgot ? 'Send Reset Link' : isLogin ? 'Sign In' : 'Create Account'}
+                {submitting ? t('auth.loading') : isForgot ? t('auth.sendResetLink') : isLogin ? t('auth.signIn') : t('auth.createAccount')}
               </Button>
             </form>
 
             <div className="mt-6 space-y-2 text-center text-sm">
               {!isForgot && (
                 <button onClick={() => setIsForgot(true)} className="text-soft-blue hover:text-energy-cyan transition-colors">
-                  Forgot password?
+                  {t('auth.forgotPassword')}
                 </button>
               )}
               <div>
@@ -116,12 +114,12 @@ const Auth = () => {
                   onClick={() => { setIsLogin(!isLogin); setIsForgot(false); }}
                   className="text-soft-blue hover:text-energy-cyan transition-colors"
                 >
-                  {isLogin ? "Don't have an account? Sign up" : 'Already have an account? Sign in'}
+                  {isLogin ? t('auth.noAccount') : t('auth.hasAccount')}
                 </button>
               </div>
               {isForgot && (
                 <button onClick={() => setIsForgot(false)} className="text-soft-blue hover:text-energy-cyan transition-colors">
-                  Back to sign in
+                  {t('auth.backToSignIn')}
                 </button>
               )}
             </div>
