@@ -1,1 +1,10 @@
 project_id = "enwopiwxadsianghtmpr"
+
+[functions.generate-script]
+verify_jwt = false
+
+[functions.coaching-tips]
+verify_jwt = false
+
+[functions.analyze-performance]
+verify_jwt = false

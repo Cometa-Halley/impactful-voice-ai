@@ -1,0 +1,139 @@
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
+};
+
+const METHODOLOGY_PROMPTS: Record<string, string> = {
+  sinek: `You are Presencia's Script Architect using the Sinek "Start with Why" methodology.
+
+Structure the script in three clear sections:
+1. WHY — The deeper purpose and belief behind the message
+2. HOW — The unique approach or process that brings the purpose to life
+3. WHAT — The tangible offer, product, or idea
+
+Guidelines:
+- Open with a powerful statement of belief or purpose
+- Build emotional conviction before introducing the practical details
+- Close by reinforcing the WHY to inspire action
+- Maintain an authentic, passionate, and visionary tone throughout`,
+
+  obama: `You are Presencia's Script Architect using the Obama "Connect" methodology.
+
+Structure the script in four sections:
+1. PERSONAL STORY — An anchoring personal experience
+2. CONFLICT — The challenge or turning point
+3. UNIVERSAL TRUTH — A shared value that connects speaker to audience
+4. CALL TO UNITY — A collective call to reflection or action
+
+Guidelines:
+- Use vivid sensory details in the storytelling
+- Build narrative arc with tension and resolution
+- Connect personal experience to universal human values
+- Use rhythmic pacing, pauses, and rhetorical repetition
+- Close with inclusive, unifying language`,
+
+  robbins: `You are Presencia's Script Architect using the Robbins "Activate" methodology.
+
+Structure the script in four sections:
+1. PATTERN INTERRUPT — A bold statement or question that breaks the status quo
+2. PAIN POINT — Expose the real problem or limiting belief
+3. VISION — Paint the transformation and breakthrough
+4. ACTION COMMAND — A specific, immediate next step
+
+Guidelines:
+- Open with maximum energy and urgency
+- Use direct, commanding language
+- Create emotional peaks and valleys
+- Make the call to action concrete, specific, and time-bound
+- Maintain relentless forward momentum`,
+
+  jobs: `You are Presencia's Script Architect using the Jobs "Present" methodology.
+
+Structure the script in four sections:
+1. PROBLEM — Set the stage by framing a problem the audience recognizes
+2. SOLUTION — Introduce your answer with clarity and simplicity
+3. DEMO/PROOF — Show concrete evidence, data, or demonstration
+4. ONE MORE THING — A memorable, theatrical closing reveal
+
+Guidelines:
+- Use simple, jargon-free language
+- Build dramatic tension before each reveal
+- Show, don't tell — favor concrete examples over abstractions
+- Create a "wow" moment that the audience will remember
+- End with a clean, quotable statement`,
+};
+
+serve(async (req) => {
+  if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+
+  try {
+    const { methodology, answers, format, duration } = await req.json();
+
+    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+    if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
+
+    const methodologyPrompt = METHODOLOGY_PROMPTS[methodology];
+    if (!methodologyPrompt) throw new Error(`Unknown methodology: ${methodology}`);
+
+    const systemPrompt = `${methodologyPrompt}
+
+Format: ${format || 'vertical'} video
+Duration: ${duration || '60s'}
+
+IMPORTANT RULES:
+- Generate a complete, ready-to-read script — not an outline
+- Write in the same language the user used in their answers
+- Adapt length to fit the specified duration (${duration || '60s'} of natural speaking)
+- Include stage directions in [brackets] for pauses, emphasis, and energy shifts
+- Never break character or mention the methodology by name in the script`;
+
+    const userMessage = `Here are my answers to the methodology questions:
+
+${answers.map((a: string, i: number) => `Q${i + 1}: ${a}`).join('\n\n')}
+
+Generate my complete script now.`;
+
+    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${LOVABLE_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "google/gemini-3-flash-preview",
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: userMessage },
+        ],
+        stream: true,
+      }),
+    });
+
+    if (!response.ok) {
+      if (response.status === 429) {
+        return new Response(JSON.stringify({ error: "Rate limit exceeded. Please wait a moment and try again." }), {
+          status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      if (response.status === 402) {
+        return new Response(JSON.stringify({ error: "AI credits exhausted. Please add credits in Settings." }), {
+          status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      const t = await response.text();
+      console.error("AI gateway error:", response.status, t);
+      throw new Error(`AI gateway error: ${response.status}`);
+    }
+
+    return new Response(response.body, {
+      headers: { ...corsHeaders, "Content-Type": "text/event-stream" },
+    });
+  } catch (e) {
+    console.error("generate-script error:", e);
+    return new Response(JSON.stringify({ error: e instanceof Error ? e.message : "Unknown error" }), {
+      status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+});
