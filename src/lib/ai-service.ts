@@ -106,6 +106,24 @@ export async function generateScript({ methodology, answers, format, duration, o
   });
 }
 
+export interface RefineScriptParams {
+  methodology: MethodologyKey;
+  script: string;
+  instruction: string;
+  history?: Array<{ role: string; content: string }>;
+  onDelta: (text: string) => void;
+  onDone: () => void;
+}
+
+export async function refineScript({ methodology, script, instruction, history, onDelta, onDone }: RefineScriptParams) {
+  return streamFromEdge({
+    functionName: 'refine-script',
+    body: { methodology, script, instruction, history },
+    onDelta,
+    onDone,
+  });
+}
+
 export interface CoachingTipsParams {
   methodology: MethodologyKey;
   script: string;
