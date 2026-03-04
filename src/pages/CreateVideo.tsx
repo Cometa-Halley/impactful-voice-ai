@@ -238,7 +238,7 @@ const CreateVideo = () => {
         {/* ── STEP 1: Select methodology ──────────────── */}
         {currentStep === 0 && (
           <motion.div key="step1" initial="hidden" animate="visible" exit="exit" variants={fadeUp} className="space-y-4">
-            <p className="text-sm text-muted-foreground">Choose the communication impact you want to create.</p>
+            <p className="text-sm text-muted-foreground">{t('createVideo.chooseImpact')}</p>
             <div className="grid gap-4 sm:grid-cols-2">
               {(Object.keys(METHODOLOGIES) as MethodologyKey[]).map(key => {
                 const m = METHODOLOGIES[key];
@@ -276,7 +276,7 @@ const CreateVideo = () => {
                 onClick={() => setCurrentStep(1)}
                 className="glow-gold font-semibold"
               >
-                Continue <ArrowRight className="ml-2 h-4 w-4" />
+                {t('createVideo.continue')} <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </div>
           </motion.div>
@@ -287,10 +287,10 @@ const CreateVideo = () => {
           <motion.div key="step2" initial="hidden" animate="visible" exit="exit" variants={fadeUp} className="space-y-6">
             <div>
               <h2 className="text-lg font-semibold text-foreground">
-                {METHODOLOGIES[selectedMethodology].tagline} — Strategic Questions
+                {METHODOLOGIES[selectedMethodology].tagline} — {t('createVideo.strategicQuestions')}
               </h2>
               <p className="text-sm text-muted-foreground mt-1">
-                Answer thoughtfully. Your answers will shape the AI-generated script.
+                {t('createVideo.answersShape')}
               </p>
             </div>
 
@@ -302,7 +302,7 @@ const CreateVideo = () => {
                 <Textarea
                   value={answers[i] || ''}
                   onChange={e => handleAnswerChange(i, e.target.value)}
-                  placeholder="Write your answer here..."
+                  placeholder={t('createVideo.writePlaceholder')}
                   className="min-h-[100px] bg-muted/50 border-border focus:border-primary"
                 />
               </div>
@@ -310,14 +310,14 @@ const CreateVideo = () => {
 
             <div className="flex justify-between pt-2">
               <Button variant="ghost" onClick={() => setCurrentStep(0)}>
-                <ArrowLeft className="mr-2 h-4 w-4" /> Back
+                <ArrowLeft className="mr-2 h-4 w-4" /> {t('createVideo.back')}
               </Button>
               <Button
                 disabled={!allAnswered}
                 onClick={handleGenerateScript}
                 className="glow-gold font-semibold"
               >
-                Generate Script <Sparkles className="ml-2 h-4 w-4" />
+                {t('createVideo.generateScript')} <Sparkles className="ml-2 h-4 w-4" />
               </Button>
             </div>
           </motion.div>
@@ -327,9 +327,9 @@ const CreateVideo = () => {
         {currentStep === 2 && (
           <motion.div key="step3" initial="hidden" animate="visible" exit="exit" variants={fadeUp} className="space-y-6">
             <div>
-              <h2 className="text-lg font-semibold text-foreground">Your Script</h2>
+              <h2 className="text-lg font-semibold text-foreground">{t('createVideo.yourScript')}</h2>
               <p className="text-sm text-muted-foreground mt-1">
-                {isGenerating ? 'AI is crafting your script...' : 'Review your generated script below.'}
+                {isGenerating ? t('createVideo.aiCrafting') : t('createVideo.reviewScript')}
               </p>
             </div>
 
@@ -339,7 +339,7 @@ const CreateVideo = () => {
                   {isGenerating && !script && (
                     <div className="flex items-center gap-3 text-muted-foreground">
                       <Loader2 className="h-5 w-5 animate-spin" />
-                      <span>Generating...</span>
+                      <span>{t('createVideo.generating')}</span>
                     </div>
                   )}
                   <div className="whitespace-pre-wrap text-sm text-foreground leading-relaxed font-mono">
@@ -352,14 +352,14 @@ const CreateVideo = () => {
 
             <div className="flex justify-between pt-2">
               <Button variant="ghost" onClick={() => setCurrentStep(1)}>
-                <ArrowLeft className="mr-2 h-4 w-4" /> Back
+                <ArrowLeft className="mr-2 h-4 w-4" /> {t('createVideo.back')}
               </Button>
               <Button
                 disabled={isGenerating || !script}
                 onClick={() => setCurrentStep(3)}
                 className="glow-gold font-semibold"
               >
-                Refine Script <MessageSquare className="ml-2 h-4 w-4" />
+                {t('createVideo.refineScript')} <MessageSquare className="ml-2 h-4 w-4" />
               </Button>
             </div>
           </motion.div>
@@ -369,16 +369,16 @@ const CreateVideo = () => {
         {currentStep === 3 && (
           <motion.div key="step4" initial="hidden" animate="visible" exit="exit" variants={fadeUp} className="space-y-4">
             <div>
-              <h2 className="text-lg font-semibold text-foreground">Refine with AI</h2>
+              <h2 className="text-lg font-semibold text-foreground">{t('createVideo.refineWithAI')}</h2>
               <p className="text-sm text-muted-foreground mt-1">
-                Tell the AI how to improve your script. Each change updates it in real-time.
+                {t('createVideo.refineDesc')}
               </p>
             </div>
 
             {/* Current script preview */}
             <Card className="gradient-card border-border">
               <CardHeader className="pb-2">
-                <CardTitle className="text-sm text-muted-foreground">Current Script</CardTitle>
+                <CardTitle className="text-sm text-muted-foreground">{t('createVideo.currentScript')}</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="whitespace-pre-wrap text-sm text-foreground leading-relaxed font-mono max-h-48 overflow-y-auto">
@@ -437,7 +437,7 @@ const CreateVideo = () => {
                     handleRefine(chatInput.trim());
                   }
                 }}
-                placeholder="e.g. Make the hook more provocative..."
+                placeholder={t('createVideo.chatPlaceholder')}
                 className="bg-muted/50 border-border focus:border-primary"
                 disabled={isRefining}
               />
@@ -453,13 +453,13 @@ const CreateVideo = () => {
 
             <div className="flex justify-between pt-2">
               <Button variant="ghost" onClick={() => setCurrentStep(2)}>
-                <ArrowLeft className="mr-2 h-4 w-4" /> Back
+                <ArrowLeft className="mr-2 h-4 w-4" /> {t('createVideo.back')}
               </Button>
               <Button
                 onClick={() => setCurrentStep(4)}
                 className="glow-gold font-semibold"
               >
-                Validate & Continue <CheckCircle2 className="ml-2 h-4 w-4" />
+                {t('createVideo.validateContinue')} <CheckCircle2 className="ml-2 h-4 w-4" />
               </Button>
             </div>
           </motion.div>
@@ -469,9 +469,9 @@ const CreateVideo = () => {
         {currentStep === 4 && (
           <motion.div key="step5" initial="hidden" animate="visible" exit="exit" variants={fadeUp} className="space-y-6">
             <div>
-              <h2 className="text-lg font-semibold text-foreground">Validate Your Script</h2>
+              <h2 className="text-lg font-semibold text-foreground">{t('createVideo.validateScript')}</h2>
               <p className="text-sm text-muted-foreground mt-1">
-                Review the final version. Once validated, you'll unlock the recording phase.
+                {t('createVideo.validateDesc')}
               </p>
             </div>
 
@@ -479,8 +479,8 @@ const CreateVideo = () => {
             <Card className="gradient-card border-primary/30 glow-gold">
               <CardHeader className="pb-2">
                 <div className="flex items-center justify-between">
-                  <CardTitle className="text-sm">Final Script — {selectedMethodology && METHODOLOGIES[selectedMethodology].tagline}</CardTitle>
-                  <span className="text-xs text-primary font-medium">Ready for review</span>
+                  <CardTitle className="text-sm">{t('createVideo.finalScript')} — {selectedMethodology && METHODOLOGIES[selectedMethodology].tagline}</CardTitle>
+                  <span className="text-xs text-primary font-medium">{t('createVideo.readyReview')}</span>
                 </div>
               </CardHeader>
               <CardContent>
@@ -494,7 +494,7 @@ const CreateVideo = () => {
             {selectedMethodology && (
               <Card className="gradient-card border-border">
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-sm text-muted-foreground">Script Structure</CardTitle>
+                  <CardTitle className="text-sm text-muted-foreground">{t('createVideo.scriptStructure')}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-2">
@@ -511,7 +511,7 @@ const CreateVideo = () => {
 
             <div className="flex justify-between pt-2">
               <Button variant="ghost" onClick={() => setCurrentStep(3)}>
-                <ArrowLeft className="mr-2 h-4 w-4" /> Back to Refine
+                <ArrowLeft className="mr-2 h-4 w-4" /> {t('createVideo.backToRefine')}
               </Button>
               <Button
                 onClick={handleSaveAndContinue}
@@ -519,11 +519,11 @@ const CreateVideo = () => {
                 className="glow-gold font-semibold"
               >
                 {saved ? (
-                  <>Saved <Check className="ml-2 h-4 w-4" /></>
+                  <>{t('createVideo.saved')} <Check className="ml-2 h-4 w-4" /></>
                 ) : isSaving ? (
-                  <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Saving...</>
+                  <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> {t('createVideo.saving')}</>
                 ) : (
-                  <>Validate & Unlock Recording <ArrowRight className="ml-2 h-4 w-4" /></>
+                  <>{t('createVideo.validateUnlock')} <ArrowRight className="ml-2 h-4 w-4" /></>
                 )}
               </Button>
             </div>
