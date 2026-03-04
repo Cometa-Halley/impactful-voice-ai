@@ -47,7 +47,7 @@ const Dashboard = () => {
       <main className="mx-auto max-w-4xl px-6 py-12">
         <div className="mb-10">
           <h1 className="text-3xl font-bold text-foreground">
-            Welcome, {displayName} 👋
+            Welcome, {displayName}
           </h1>
           <p className="mt-2 text-muted-foreground">
             Your AI communication coach is ready. Start building your message.
