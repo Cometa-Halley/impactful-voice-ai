@@ -16,14 +16,7 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import { METHODOLOGIES, type MethodologyKey } from '@/lib/methodologies';
 
-const CATEGORIES = [
-  { key: 'all', label: 'All', icon: Filter },
-  { key: 'Viral', label: 'Viral', icon: TrendingUp },
-  { key: 'Educational', label: 'Educational', icon: GraduationCap },
-  { key: 'Sales', label: 'Sales', icon: ShoppingBag },
-  { key: 'Entrepreneur Tips', label: 'Entrepreneur', icon: Lightbulb },
-  { key: 'Authority Content', label: 'Authority', icon: Award },
-] as const;
+// CATEGORIES moved inside component for i18n
 
 const METHODOLOGY_ICONS: Record<string, typeof Sparkles> = {
   sinek: Sparkles,
