@@ -37,13 +37,6 @@ const METHODOLOGY_COLORS: Record<MethodologyKey, string> = {
   jobs: 'border-soft-blue/50 hover:border-soft-blue',
 };
 
-const QUICK_REFINEMENTS = [
-  'Make it more direct',
-  'Reduce to 30 seconds',
-  'Make it more emotional',
-  'Add more urgency',
-  'Simplify the language',
-];
 
 interface ChatMessage {
   role: 'user' | 'assistant';
