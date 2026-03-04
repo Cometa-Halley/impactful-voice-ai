@@ -196,6 +196,13 @@ const CreateVideo = () => {
     { label: t('createVideo.steps.validate'), icon: CheckCircle2 },
   ];
 
+  return (
+    <AppLayout>
+      {/* Header + Stepper */}
+      <motion.div initial="hidden" animate="visible" variants={fadeUp} className="mb-8">
+        <h1 className="text-3xl font-bold text-foreground">{t('createVideo.title')}</h1>
+        <p className="mt-1 text-muted-foreground">{t('createVideo.subtitle')}</p>
+
         {/* Stepper */}
         <div className="mt-6 flex items-center gap-2">
           {steps.map((s, i) => {
