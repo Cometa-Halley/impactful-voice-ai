@@ -58,6 +58,9 @@ const Templates = () => {
   const [loading, setLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState('all');
   const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(null);
+  const tt = (title: string | null) => title ? t(`templateContent.titles.${title}`, title) : '';
+  const td = (desc: string | null) => desc ? t(`templateContent.descriptions.${desc}`, desc) : '';
+  const tc = (cat: string) => t(`templateContent.categories.${cat}`, cat);
 
   const CATEGORIES = [
     { key: 'all', label: t('templates.all'), icon: Filter },
