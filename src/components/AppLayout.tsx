@@ -35,7 +35,7 @@ const AppLayout = ({ children }: { children: React.ReactNode }) => {
                   <Button
                     variant="ghost"
                     size="sm"
-                    className={`gap-2 text-sm ${isActive ? 'text-primary bg-primary/10' : 'text-muted-foreground hover:text-foreground hover:bg-nav-hover/20'}`}
+                    className={`gap-2 text-sm ${isActive ? 'text-white bg-nav-hover' : 'text-muted-foreground hover:text-foreground hover:bg-nav-hover/20'}`}
                   >
                     <item.icon className="h-4 w-4" />
                     {item.label}
@@ -60,7 +60,7 @@ const AppLayout = ({ children }: { children: React.ReactNode }) => {
                 <Button
                   variant="ghost"
                   size="sm"
-                  className={`gap-1.5 text-xs whitespace-nowrap ${isActive ? 'text-primary bg-primary/10' : 'text-muted-foreground hover:text-foreground hover:bg-nav-hover/20'}`}
+                  className={`gap-1.5 text-xs whitespace-nowrap ${isActive ? 'text-white bg-nav-hover' : 'text-muted-foreground hover:text-foreground hover:bg-nav-hover/20'}`}
                 >
                   <item.icon className="h-3.5 w-3.5" />
                   {item.label}
