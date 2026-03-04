@@ -155,11 +155,11 @@ const Templates = () => {
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <AnimatePresence mode="popLayout">
-            {filtered.map((t, i) => {
-              const MethodIcon = METHODOLOGY_ICONS[t.methodology ?? ''] ?? Sparkles;
-              const methodColor = METHODOLOGY_COLORS[t.methodology ?? ''] ?? 'bg-secondary text-muted-foreground border-border';
-              const methodLabel = t.methodology ? METHODOLOGIES[t.methodology as MethodologyKey]?.name : null;
-              const structure = (t.structure ?? []) as string[];
+            {filtered.map((tmpl, i) => {
+              const MethodIcon = METHODOLOGY_ICONS[tmpl.methodology ?? ''] ?? Sparkles;
+              const methodColor = METHODOLOGY_COLORS[tmpl.methodology ?? ''] ?? 'bg-secondary text-muted-foreground border-border';
+              const methodLabel = tmpl.methodology ? METHODOLOGIES[tmpl.methodology as MethodologyKey]?.name : null;
+              const structure = (tmpl.structure ?? []) as string[];
 
               return (
                 <motion.div
