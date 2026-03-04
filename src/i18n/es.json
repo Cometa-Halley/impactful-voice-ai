@@ -300,5 +300,98 @@
       "addUrgency": "Añade más urgencia",
       "simplify": "Simplifica el lenguaje"
     }
+  },
+  "methodologies": {
+    "sinek": {
+      "name": "Sinek — Inspirar",
+      "tagline": "Empieza con el Por Qué",
+      "focus": "Comunicación basada en propósito que inspira acción a través de la creencia.",
+      "questions": [
+        "¿Por qué haces lo que haces? ¿Cuál es el propósito más profundo detrás de tu trabajo o mensaje?",
+        "¿Cómo llevas ese propósito a la vida? ¿Cuál es tu enfoque o proceso único?",
+        "¿Cuál es el resultado tangible — el producto, servicio o idea que estás ofreciendo?",
+        "¿Quién es tu audiencia y qué quieres que crean después de escucharte?"
+      ],
+      "scriptStructure": ["POR QUÉ — Propósito y creencia", "CÓMO — Proceso y diferenciación", "QUÉ — Oferta y prueba"]
+    },
+    "obama": {
+      "name": "Obama — Conectar",
+      "tagline": "Cuenta tu historia",
+      "focus": "Storytelling emocional y narrativa personal que crea conexión profunda.",
+      "questions": [
+        "¿Qué experiencia personal moldeó tu perspectiva sobre este tema?",
+        "¿Qué desafío o punto de inflexión hizo que esta historia fuera significativa?",
+        "¿Qué verdad universal o valor compartido revela tu historia?",
+        "¿Qué acción o reflexión quieres que tu audiencia se lleve?"
+      ],
+      "scriptStructure": ["HISTORIA PERSONAL — Experiencia ancla", "CONFLICTO — Desafío y tensión", "VERDAD UNIVERSAL — Valor compartido", "LLAMADO A LA UNIÓN — Acción colectiva"]
+    },
+    "robbins": {
+      "name": "Robbins — Activar",
+      "tagline": "Mueve a la acción",
+      "focus": "Persuasión de alta energía que rompe creencias limitantes e impulsa acción inmediata.",
+      "questions": [
+        "¿Qué creencia limitante u obstáculo está frenando a tu audiencia ahora mismo?",
+        "¿Cuál es la transformación o avance que quieres que experimenten?",
+        "¿Cuál es el primer paso concreto que pueden dar ahora mismo?",
+        "¿Qué estado emocional quieres que sientan — urgencia, empoderamiento, emoción?"
+      ],
+      "scriptStructure": ["INTERRUPCIÓN DE PATRÓN — Rompe el status quo", "PUNTO DE DOLOR — Expón el problema real", "VISIÓN — Muestra la transformación", "COMANDO DE ACCIÓN — Siguiente paso inmediato"]
+    },
+    "jobs": {
+      "name": "Jobs — Presentar",
+      "tagline": "Simplifica y sorprende",
+      "focus": "Presentación estructurada de producto con claridad problema/solución y revelaciones teatrales.",
+      "questions": [
+        "¿Qué problema enfrenta tu audiencia que quizás no comprende completamente?",
+        "¿Cuál es tu solución y qué la hace fundamentalmente diferente?",
+        "¿Cuál es el dato, demo o resultado más impresionante que puedes mostrar?",
+        "¿Cómo quieres que la audiencia recuerde esto — cuál es el \"una cosa más\"?"
+      ],
+      "scriptStructure": ["PROBLEMA — Prepara el escenario", "SOLUCIÓN — Presenta tu respuesta", "DEMO/PRUEBA — Muestra, no cuentes", "UNA COSA MÁS — Cierre memorable"]
+    }
+  },
+  "templateContent": {
+    "categories": {
+      "Viral": "Viral",
+      "Educational": "Educativo",
+      "Sales": "Ventas",
+      "Entrepreneur Tips": "Tips de Emprendedor",
+      "Authority Content": "Contenido de Autoridad"
+    },
+    "titles": {
+      "Hot Take Opener": "Apertura Provocadora",
+      "Story Hook Loop": "Gancho con Historia",
+      "Before/After Reveal": "Revelación Antes/Después",
+      "3-Step Framework": "Marco de 3 Pasos",
+      "Myth Buster": "Rompe Mitos",
+      "Quick Tip": "Tip Rápido",
+      "Problem-Agitate-Solve": "Problema-Agitar-Resolver",
+      "Social Proof Pitch": "Pitch con Prueba Social",
+      "Value Stack": "Acumulación de Valor",
+      "Lesson I Learned the Hard Way": "Lección que Aprendí por las Malas",
+      "Day in the Life": "Un Día en Mi Vida",
+      "Unpopular Opinion": "Opinión Impopular",
+      "Framework Breakdown": "Desglose de Framework",
+      "Case Study": "Caso de Estudio",
+      "Industry Prediction": "Predicción de Industria"
+    },
+    "descriptions": {
+      "Hot Take Opener": "Empieza con una declaración audaz y controversial que detiene el scroll y gana el compartido.",
+      "Story Hook Loop": "Abre con un cliffhanger que mantiene a los espectadores viendo hasta el final.",
+      "Before/After Reveal": "Muestra una transformación dramática que hace que los espectadores quieran compartir.",
+      "3-Step Framework": "Enseña un proceso simple y repetible que tu audiencia puede aplicar de inmediato.",
+      "Myth Buster": "Desmiente un mito común en tu campo con evidencia clara.",
+      "Quick Tip": "Comparte un insight poderoso que cambia cómo piensa o actúa tu audiencia.",
+      "Problem-Agitate-Solve": "Marco clásico de ventas: saca el dolor, intensifícalo, luego presenta tu solución.",
+      "Social Proof Pitch": "Lidera con resultados reales y testimonios para construir confianza antes de pedir.",
+      "Value Stack": "Apila múltiples beneficios hasta que la oferta sea irresistible.",
+      "Lesson I Learned the Hard Way": "Comparte un error costoso y la lección que cambió la trayectoria de tu negocio.",
+      "Day in the Life": "Da una mirada auténtica detrás de escenas de tu camino emprendedor.",
+      "Unpopular Opinion": "Desafía la sabiduría convencional de negocios con tu perspectiva contraria.",
+      "Framework Breakdown": "Demuestra experiencia profunda explicando un concepto que la mayoría simplifica demasiado.",
+      "Case Study": "Recorre un resultado real que lograste, paso a paso, para probar tu experiencia.",
+      "Industry Prediction": "Posiciónate como líder de pensamiento compartiendo una predicción audaz sobre tu industria."
+    }
   }
 }

@@ -10,7 +10,7 @@ import {
   Loader2, Send, Zap, Heart, Target, Presentation, Check,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { METHODOLOGIES, type MethodologyKey } from '@/lib/methodologies';
+import { METHODOLOGIES, getTranslatedMethodologies, type MethodologyKey } from '@/lib/methodologies';
 import { generateScript, refineScript } from '@/lib/ai-service';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -47,6 +47,7 @@ const CreateVideo = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const methods = getTranslatedMethodologies(t);
   const [currentStep, setCurrentStep] = useState(0);
 
   // Step 1 — Methodology
@@ -77,7 +78,7 @@ const CreateVideo = () => {
 
   const handleSelectMethodology = (key: MethodologyKey) => {
     setSelectedMethodology(key);
-    const m = METHODOLOGIES[key];
+    const m = methods[key];
     setAnswers(new Array(m.questions.length).fill(''));
   };
 
@@ -233,8 +234,8 @@ const CreateVideo = () => {
           <motion.div key="step1" initial="hidden" animate="visible" exit="exit" variants={fadeUp} className="space-y-4">
             <p className="text-sm text-muted-foreground">{t('createVideo.chooseImpact')}</p>
             <div className="grid gap-4 sm:grid-cols-2">
-              {(Object.keys(METHODOLOGIES) as MethodologyKey[]).map(key => {
-                const m = METHODOLOGIES[key];
+              {(Object.keys(methods) as MethodologyKey[]).map(key => {
+                const m = methods[key];
                 const Icon = METHODOLOGY_ICONS[key];
                 const selected = selectedMethodology === key;
                 return (
@@ -280,14 +281,14 @@ const CreateVideo = () => {
           <motion.div key="step2" initial="hidden" animate="visible" exit="exit" variants={fadeUp} className="space-y-6">
             <div>
               <h2 className="text-lg font-semibold text-foreground">
-                {METHODOLOGIES[selectedMethodology].tagline} — {t('createVideo.strategicQuestions')}
+                {methods[selectedMethodology].tagline} — {t('createVideo.strategicQuestions')}
               </h2>
               <p className="text-sm text-muted-foreground mt-1">
                 {t('createVideo.answersShape')}
               </p>
             </div>
 
-            {METHODOLOGIES[selectedMethodology].questions.map((q, i) => (
+            {methods[selectedMethodology].questions.map((q, i) => (
               <div key={i} className="space-y-2">
                 <label className="text-sm font-medium text-foreground">
                   {i + 1}. {q}
@@ -472,7 +473,7 @@ const CreateVideo = () => {
             <Card className="gradient-card border-primary/30 glow-gold">
               <CardHeader className="pb-2">
                 <div className="flex items-center justify-between">
-                  <CardTitle className="text-sm">{t('createVideo.finalScript')} — {selectedMethodology && METHODOLOGIES[selectedMethodology].tagline}</CardTitle>
+                  <CardTitle className="text-sm">{t('createVideo.finalScript')} — {selectedMethodology && methods[selectedMethodology].tagline}</CardTitle>
                   <span className="text-xs text-primary font-medium">{t('createVideo.readyReview')}</span>
                 </div>
               </CardHeader>
@@ -491,7 +492,7 @@ const CreateVideo = () => {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-2">
-                    {METHODOLOGIES[selectedMethodology].scriptStructure.map((block, i) => (
+                    {methods[selectedMethodology].scriptStructure.map((block, i) => (
                       <div key={i} className="flex items-center gap-2">
                         <CheckCircle2 className="h-4 w-4 text-primary shrink-0" />
                         <span className="text-sm text-foreground">{block}</span>
