@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
+import { useTranslation } from 'react-i18next';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -14,13 +15,14 @@ import logoPresencia from '@/assets/logo-presencia.png';
 import ParticleBackground from '@/components/ParticleBackground';
 import { toast } from 'sonner';
 
-const sectors = [
+const sectorKeys = [
   'Technology', 'Marketing', 'Education', 'Health', 'Finance',
   'Real Estate', 'Entertainment', 'Consulting', 'E-commerce', 'Other',
 ];
 
 const Onboarding = () => {
   const { user } = useAuth();
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [step, setStep] = useState(0);
   const [experienceLevel, setExperienceLevel] = useState<string>('');
@@ -40,9 +42,9 @@ const Onboarding = () => {
     }).eq('id', user.id);
 
     if (error) {
-      toast.error('Could not save profile. Please try again.');
+      toast.error(t('onboarding.couldNotSave'));
     } else {
-      toast.success('Profile complete!');
+      toast.success(t('onboarding.profileComplete'));
       navigate('/dashboard');
     }
     setSaving(false);
@@ -50,8 +52,8 @@ const Onboarding = () => {
 
   const steps = [
     {
-      title: 'Experience Level',
-      description: 'How experienced are you with public speaking or creating video content?',
+      title: t('onboarding.experienceLevel'),
+      description: t('onboarding.experienceDesc'),
       content: (
         <div className="grid gap-3">
           {(['beginner', 'intermediate', 'advanced'] as const).map((level) => (
@@ -63,12 +65,8 @@ const Onboarding = () => {
                 : 'border-border bg-card hover:border-muted-foreground/30 text-muted-foreground'
               }`}
             >
-              <span className="font-semibold capitalize">{level}</span>
-              <p className="mt-1 text-sm opacity-70">
-                {level === 'beginner' && 'Just getting started with video communication'}
-                {level === 'intermediate' && 'Some experience creating content or presenting'}
-                {level === 'advanced' && 'Regularly create content or speak professionally'}
-              </p>
+              <span className="font-semibold">{t(`onboarding.${level}`)}</span>
+              <p className="mt-1 text-sm opacity-70">{t(`onboarding.${level}Desc`)}</p>
             </button>
           ))}
         </div>
@@ -76,38 +74,31 @@ const Onboarding = () => {
       valid: !!experienceLevel,
     },
     {
-      title: 'Confidence Level',
-      description: 'How confident do you feel speaking on camera right now?',
+      title: t('onboarding.confidenceLevel'),
+      description: t('onboarding.confidenceDesc'),
       content: (
         <div className="space-y-8">
-          <Slider
-            value={confidenceLevel}
-            onValueChange={setConfidenceLevel}
-            min={1}
-            max={10}
-            step={1}
-            className="py-4"
-          />
+          <Slider value={confidenceLevel} onValueChange={setConfidenceLevel} min={1} max={10} step={1} className="py-4" />
           <div className="flex justify-between text-sm text-muted-foreground">
-            <span>1 — Not confident</span>
+            <span>{t('onboarding.notConfident')}</span>
             <span className="text-2xl font-bold text-primary">{confidenceLevel[0]}</span>
-            <span>10 — Very confident</span>
+            <span>{t('onboarding.veryConfident')}</span>
           </div>
         </div>
       ),
       valid: true,
     },
     {
-      title: 'Your Sector',
-      description: 'What industry or field are you in?',
+      title: t('onboarding.yourSector'),
+      description: t('onboarding.sectorDesc'),
       content: (
         <Select value={sector} onValueChange={setSector}>
           <SelectTrigger className="bg-card border-border">
-            <SelectValue placeholder="Select your sector" />
+            <SelectValue placeholder={t('onboarding.selectSector')} />
           </SelectTrigger>
           <SelectContent>
-            {sectors.map((s) => (
-              <SelectItem key={s} value={s}>{s}</SelectItem>
+            {sectorKeys.map((s) => (
+              <SelectItem key={s} value={s}>{t(`sectors.${s}`)}</SelectItem>
             ))}
           </SelectContent>
         </Select>
@@ -115,13 +106,13 @@ const Onboarding = () => {
       valid: !!sector,
     },
     {
-      title: 'Target Audience',
-      description: 'Who are you primarily trying to reach with your message?',
+      title: t('onboarding.targetAudience'),
+      description: t('onboarding.targetDesc'),
       content: (
         <Input
           value={targetAudience}
           onChange={(e) => setTargetAudience(e.target.value)}
-          placeholder="e.g., Startup founders, College students, SMB owners..."
+          placeholder={t('onboarding.targetPlaceholder')}
           className="bg-card border-border"
         />
       ),
@@ -147,13 +138,9 @@ const Onboarding = () => {
           <img src={logoPresencia} alt="Presencia" className="h-12 w-auto" />
         </div>
 
-        {/* Progress */}
         <div className="mb-6 flex gap-2">
           {steps.map((_, i) => (
-            <div
-              key={i}
-              className={`h-1 flex-1 rounded-full transition-all ${i <= step ? 'bg-primary' : 'bg-border'}`}
-            />
+            <div key={i} className={`h-1 flex-1 rounded-full transition-all ${i <= step ? 'bg-primary' : 'bg-border'}`} />
           ))}
         </div>
 
@@ -167,7 +154,7 @@ const Onboarding = () => {
             <div className="flex gap-3 pt-2">
               {step > 0 && (
                 <Button variant="ghost" onClick={() => setStep(step - 1)} className="text-muted-foreground">
-                  Back
+                  {t('onboarding.back')}
                 </Button>
               )}
               <Button
@@ -175,14 +162,10 @@ const Onboarding = () => {
                 disabled={!currentStep.valid || saving}
                 onClick={isLast ? handleComplete : () => setStep(step + 1)}
               >
-                {saving ? 'Saving...' : isLast ? (
-                  <>
-                    Complete <Sparkles className="ml-2 h-4 w-4" />
-                  </>
+                {saving ? t('onboarding.saving') : isLast ? (
+                  <>{t('onboarding.complete')} <Sparkles className="ml-2 h-4 w-4" /></>
                 ) : (
-                  <>
-                    Next <ArrowRight className="ml-2 h-4 w-4" />
-                  </>
+                  <>{t('onboarding.next')} <ArrowRight className="ml-2 h-4 w-4" /></>
                 )}
               </Button>
             </div>

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { supabase } from '@/integrations/supabase/client';
 import AppLayout from '@/components/AppLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -15,14 +16,7 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import { METHODOLOGIES, type MethodologyKey } from '@/lib/methodologies';
 
-const CATEGORIES = [
-  { key: 'all', label: 'All', icon: Filter },
-  { key: 'Viral', label: 'Viral', icon: TrendingUp },
-  { key: 'Educational', label: 'Educational', icon: GraduationCap },
-  { key: 'Sales', label: 'Sales', icon: ShoppingBag },
-  { key: 'Entrepreneur Tips', label: 'Entrepreneur', icon: Lightbulb },
-  { key: 'Authority Content', label: 'Authority', icon: Award },
-] as const;
+// CATEGORIES moved inside component for i18n
 
 const METHODOLOGY_ICONS: Record<string, typeof Sparkles> = {
   sinek: Sparkles,
@@ -58,10 +52,20 @@ const fadeUp = {
 
 const Templates = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [templates, setTemplates] = useState<Template[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState('all');
   const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(null);
+
+  const CATEGORIES = [
+    { key: 'all', label: t('templates.all'), icon: Filter },
+    { key: 'Viral', label: t('templates.viral'), icon: TrendingUp },
+    { key: 'Educational', label: t('templates.educational'), icon: GraduationCap },
+    { key: 'Sales', label: t('templates.sales'), icon: ShoppingBag },
+    { key: 'Entrepreneur Tips', label: t('templates.entrepreneur'), icon: Lightbulb },
+    { key: 'Authority Content', label: t('templates.authority'), icon: Award },
+  ];
 
   useEffect(() => {
     supabase
@@ -91,10 +95,8 @@ const Templates = () => {
         transition={{ duration: 0.5 }}
         className="mb-8"
       >
-        <h1 className="text-3xl font-bold text-foreground">Template Library</h1>
-        <p className="mt-2 text-muted-foreground">
-          Proven communication structures to accelerate your message. Pick one, customize it, record.
-        </p>
+        <h1 className="text-3xl font-bold text-foreground">{t('templates.title')}</h1>
+        <p className="mt-2 text-muted-foreground">{t('templates.subtitle')}</p>
       </motion.div>
 
       {/* Category Filter */}
@@ -138,25 +140,23 @@ const Templates = () => {
               <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-secondary text-muted-foreground">
                 <LayoutTemplate className="h-8 w-8" />
               </div>
-              <h3 className="text-lg font-semibold text-foreground">No templates in this category</h3>
-              <p className="text-sm text-muted-foreground max-w-sm">
-                Try selecting a different category or browse all templates.
-              </p>
+              <h3 className="text-lg font-semibold text-foreground">{t('templates.noTemplates')}</h3>
+              <p className="text-sm text-muted-foreground max-w-sm">{t('templates.noTemplatesDesc')}</p>
             </CardContent>
           </Card>
         </motion.div>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <AnimatePresence mode="popLayout">
-            {filtered.map((t, i) => {
-              const MethodIcon = METHODOLOGY_ICONS[t.methodology ?? ''] ?? Sparkles;
-              const methodColor = METHODOLOGY_COLORS[t.methodology ?? ''] ?? 'bg-secondary text-muted-foreground border-border';
-              const methodLabel = t.methodology ? METHODOLOGIES[t.methodology as MethodologyKey]?.name : null;
-              const structure = (t.structure ?? []) as string[];
+            {filtered.map((tmpl, i) => {
+              const MethodIcon = METHODOLOGY_ICONS[tmpl.methodology ?? ''] ?? Sparkles;
+              const methodColor = METHODOLOGY_COLORS[tmpl.methodology ?? ''] ?? 'bg-secondary text-muted-foreground border-border';
+              const methodLabel = tmpl.methodology ? METHODOLOGIES[tmpl.methodology as MethodologyKey]?.name : null;
+              const structure = (tmpl.structure ?? []) as string[];
 
               return (
                 <motion.div
-                  key={t.id}
+                  key={tmpl.id}
                   layout
                   initial="hidden"
                   animate="visible"
@@ -166,25 +166,25 @@ const Templates = () => {
                 >
                   <Card
                     className="gradient-card border-border cursor-pointer transition-all duration-300 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5 group h-full flex flex-col"
-                    onClick={() => setSelectedTemplate(t)}
+                    onClick={() => setSelectedTemplate(tmpl)}
                   >
                     <CardHeader className="pb-3 flex-1">
                       <div className="flex items-center justify-between mb-2">
                         <Badge variant="outline" className="bg-secondary/80 text-muted-foreground border-border text-xs">
-                          {t.category}
+                          {tmpl.category}
                         </Badge>
-                        {t.recommended_duration && (
+                        {tmpl.recommended_duration && (
                           <div className="flex items-center gap-1 text-xs text-muted-foreground">
                             <Clock className="h-3 w-3" />
-                            {t.recommended_duration}
+                            {tmpl.recommended_duration}
                           </div>
                         )}
                       </div>
                       <CardTitle className="text-base group-hover:text-primary transition-colors">
-                        {t.title ?? t.category}
+                        {tmpl.title ?? tmpl.category}
                       </CardTitle>
                       <CardDescription className="text-sm line-clamp-2">
-                        {t.description}
+                        {tmpl.description}
                       </CardDescription>
                     </CardHeader>
                     <CardContent className="pt-0">
@@ -196,7 +196,7 @@ const Templates = () => {
                           </Badge>
                         )}
                         <span className="text-xs text-muted-foreground">
-                          {structure.length} blocks
+                          {t('templates.blocks', { count: structure.length })}
                         </span>
                       </div>
                     </CardContent>
@@ -247,7 +247,7 @@ const Templates = () => {
               {/* Structure */}
               {structure.length > 0 && (
                 <div className="mt-4 space-y-2">
-                  <h4 className="text-sm font-semibold text-foreground">Example Structure</h4>
+                  <h4 className="text-sm font-semibold text-foreground">{t('templates.exampleStructure')}</h4>
                   <div className="space-y-2">
                     {structure.map((block, i) => {
                       const [title, ...rest] = block.split('—');
@@ -270,13 +270,13 @@ const Templates = () => {
 
               <DialogFooter className="mt-4">
                 <Button variant="outline" onClick={() => setSelectedTemplate(null)}>
-                  Close
+                  {t('templates.close')}
                 </Button>
                 <Button
                   onClick={() => handleUseTemplate(selectedTemplate)}
                   className="glow-gold font-semibold gap-2"
                 >
-                  Use Template <ArrowRight className="h-4 w-4" />
+                  {t('templates.useTemplate')} <ArrowRight className="h-4 w-4" />
                 </Button>
               </DialogFooter>
             </DialogContent>
