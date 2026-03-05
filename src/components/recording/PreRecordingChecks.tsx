@@ -130,7 +130,7 @@ export default function PreRecordingChecks({
                   <Progress value={audioQuality.noiseFloor} className="h-1.5 flex-1" />
                 </div>
                 {audioQuality.clipping && (
-                  <p className="text-xs text-destructive">⚠ Audio clipping detected — move back from mic</p>
+                  <p className="text-xs text-destructive">Audio clipping detected — move back from mic</p>
                 )}
               </div>
             </CardContent>
@@ -168,7 +168,7 @@ export default function PreRecordingChecks({
       {!allGood && (
         <Card className="gradient-card border-primary/20">
           <CardContent className="py-4">
-            <h3 className="text-sm font-semibold text-foreground mb-2">💡 Tips to improve</h3>
+            <h3 className="text-sm font-semibold text-foreground mb-2">Tips to improve</h3>
             <ul className="text-xs text-muted-foreground space-y-1">
               {lightingQuality.brightness < 80 && <li>• Move to a brighter area or add a light source in front of you</li>}
               {lightingQuality.brightness > 200 && <li>• Reduce brightness — avoid direct light behind you</li>}

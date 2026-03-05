@@ -38,11 +38,11 @@ interface FeedbackRow {
 
 function getConfidenceLevel(videoCount: number, t: (key: string) => string) {
   const levels = [
-    { min: 0, label: t('dashboard.confidenceLevels.gettingStarted'), emoji: '🌱' },
-    { min: 3, label: t('dashboard.confidenceLevels.findingVoice'), emoji: '🎯' },
-    { min: 6, label: t('dashboard.confidenceLevels.buildingMomentum'), emoji: '🔥' },
-    { min: 10, label: t('dashboard.confidenceLevels.confidentSpeaker'), emoji: '⚡' },
-    { min: 15, label: t('dashboard.confidenceLevels.communicationPro'), emoji: '🏆' },
+    { min: 0, label: t('dashboard.confidenceLevels.gettingStarted') },
+    { min: 3, label: t('dashboard.confidenceLevels.findingVoice') },
+    { min: 6, label: t('dashboard.confidenceLevels.buildingMomentum') },
+    { min: 10, label: t('dashboard.confidenceLevels.confidentSpeaker') },
+    { min: 15, label: t('dashboard.confidenceLevels.communicationPro') },
   ];
   let level = levels[0];
   for (const l of levels) {
@@ -157,7 +157,6 @@ const Dashboard = () => {
           <CardContent className="relative py-6">
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-3">
-                <span className="text-2xl">{confidence.emoji}</span>
                 <div>
                   <h3 className="font-semibold text-foreground">{confidence.label}</h3>
                   <p className="text-xs text-muted-foreground">
