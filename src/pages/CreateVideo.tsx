@@ -33,7 +33,7 @@ const METHODOLOGY_ICONS: Record<MethodologyKey, typeof Sparkles> = {
 const METHODOLOGY_COLORS: Record<MethodologyKey, string> = {
   sinek: 'border-primary/50 hover:border-primary',
   obama: 'border-accent/50 hover:border-accent',
-  robbins: 'border-destructive/50 hover:border-destructive',
+  robbins: 'border-pink-brand/50 hover:border-pink-brand',
   jobs: 'border-soft-blue/50 hover:border-soft-blue',
 };
 
