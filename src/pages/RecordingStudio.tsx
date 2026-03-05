@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import AppLayout from '@/components/AppLayout';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ArrowLeft, Monitor, Smartphone, Hand, Loader2 } from 'lucide-react';
+import { ArrowLeft, Monitor, Smartphone, Hand, Loader2, Download, Share2, Sparkles, RotateCcw } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -300,15 +300,77 @@ const RecordingStudio = () => {
         )}
 
         {phase === 'review' && recordedBlob && (
-          <motion.div key="review" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-6">
+          <motion.div key="review" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="pb-28">
+            {/* Video player */}
             <div className="max-w-2xl mx-auto">
               <div className={`${aspectClass} max-h-[60vh] bg-black rounded-xl overflow-hidden`}>
                 <video src={URL.createObjectURL(recordedBlob)} controls className="w-full h-full object-contain" />
               </div>
             </div>
-            <div className="flex justify-center gap-4">
-              <Button variant="outline" onClick={handleReRecord}>{t('recording.reRecord')}</Button>
-              <Button className="glow-gold font-semibold" onClick={handleSaveAndAnalyze}>{t('recording.saveAnalyze')}</Button>
+
+            {/* Fixed bottom action bar */}
+            <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
+              <div className="mx-auto flex max-w-3xl items-center justify-between px-4 py-3 sm:px-6 gap-3">
+                {/* Left: secondary actions */}
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleReRecord}
+                    className="gap-2"
+                  >
+                    <RotateCcw className="h-4 w-4" /> {t('recording.reRecord')}
+                  </Button>
+                </div>
+
+                {/* Right: primary actions */}
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      if (!recordedBlob) return;
+                      const url = URL.createObjectURL(recordedBlob);
+                      const a = document.createElement('a');
+                      a.href = url;
+                      a.download = `presencia-${new Date().toISOString().slice(0, 10)}.webm`;
+                      a.click();
+                      URL.revokeObjectURL(url);
+                      toast.success(t('recording.downloaded', 'Video downloaded'));
+                    }}
+                    className="gap-2"
+                  >
+                    <Download className="h-4 w-4" /> {t('recording.download', 'Save')}
+                  </Button>
+
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={async () => {
+                      if (!recordedBlob || !navigator.share) {
+                        toast.info(t('recording.shareNotSupported', 'Sharing not supported on this device'));
+                        return;
+                      }
+                      try {
+                        const file = new File([recordedBlob], 'presencia-video.webm', { type: 'video/webm' });
+                        await navigator.share({ files: [file], title: 'Presencia Video' });
+                      } catch {
+                        // user cancelled or not supported
+                      }
+                    }}
+                    className="gap-2"
+                  >
+                    <Share2 className="h-4 w-4" /> {t('recording.publish', 'Publish')}
+                  </Button>
+
+                  <Button
+                    onClick={handleSaveAndAnalyze}
+                    className="glow-gold font-semibold gap-2"
+                  >
+                    <Sparkles className="h-4 w-4" /> {t('recording.analyzeVideo', 'Analyze my video')}
+                  </Button>
+                </div>
+              </div>
             </div>
           </motion.div>
         )}
