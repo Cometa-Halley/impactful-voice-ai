@@ -3,6 +3,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Camera, Mic, Sun, Waves, CheckCircle2, AlertTriangle, XCircle, ArrowRight, Loader2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import type { AudioQuality } from '@/hooks/useAudioAnalysis';
 import type { LightingQuality } from '@/hooks/useLightingDetection';
 
@@ -41,6 +42,8 @@ export default function PreRecordingChecks({
   hasCamera, hasMicrophone, audioQuality, lightingQuality,
   isLoading, onStartDevices, onContinue, videoRef,
 }: Props) {
+  const { t } = useTranslation();
+
   const allGood = hasCamera && hasMicrophone &&
     (audioQuality.quality === 'good' || audioQuality.quality === 'fair') &&
     (lightingQuality.quality === 'good' || lightingQuality.quality === 'fair');
@@ -89,11 +92,11 @@ export default function PreRecordingChecks({
           </CardContent>
         </Card>
 
-        {/* Checks panel */}
-        <div className="space-y-3">
+        {/* Checks panel — fixed height to prevent layout jumps */}
+        <div className="space-y-3 min-h-[360px]">
           {/* Camera */}
           <Card className="gradient-card border-border">
-            <CardContent className="flex items-center gap-3 py-4">
+            <CardContent className="flex items-center gap-3 py-4 h-[56px]">
               <StatusIcon status={hasCamera} />
               <Camera className="h-4 w-4 text-muted-foreground" />
               <span className="text-sm font-medium text-foreground flex-1">Camera</span>
@@ -103,7 +106,7 @@ export default function PreRecordingChecks({
 
           {/* Microphone */}
           <Card className="gradient-card border-border">
-            <CardContent className="flex items-center gap-3 py-4">
+            <CardContent className="flex items-center gap-3 py-4 h-[56px]">
               <StatusIcon status={hasMicrophone} />
               <Mic className="h-4 w-4 text-muted-foreground" />
               <span className="text-sm font-medium text-foreground flex-1">Microphone</span>
@@ -113,14 +116,14 @@ export default function PreRecordingChecks({
 
           {/* Audio quality */}
           <Card className="gradient-card border-border">
-            <CardContent className="py-4 space-y-2">
+            <CardContent className="py-4 h-[110px]">
               <div className="flex items-center gap-3">
                 <StatusIcon status={audioQuality.quality} />
                 <Waves className="h-4 w-4 text-muted-foreground" />
                 <span className="text-sm font-medium text-foreground flex-1">Audio Quality</span>
                 <StatusBadge status={audioQuality.quality} />
               </div>
-              <div className="ml-8 space-y-1">
+              <div className="ml-8 space-y-1 mt-2">
                 <div className="flex items-center gap-2">
                   <span className="text-xs text-muted-foreground w-16">Level</span>
                   <Progress value={audioQuality.level} className="h-1.5 flex-1" />
@@ -138,14 +141,14 @@ export default function PreRecordingChecks({
 
           {/* Lighting */}
           <Card className="gradient-card border-border">
-            <CardContent className="py-4 space-y-2">
+            <CardContent className="py-4 h-[120px]">
               <div className="flex items-center gap-3">
                 <StatusIcon status={lightingQuality.quality} />
                 <Sun className="h-4 w-4 text-muted-foreground" />
                 <span className="text-sm font-medium text-foreground flex-1">Lighting</span>
                 <StatusBadge status={lightingQuality.quality} />
               </div>
-              <div className="ml-8 space-y-1">
+              <div className="ml-8 space-y-1 mt-2">
                 <div className="flex items-center gap-2">
                   <span className="text-xs text-muted-foreground w-16">Bright</span>
                   <Progress value={Math.round((lightingQuality.brightness / 255) * 100)} className="h-1.5 flex-1" />
@@ -164,11 +167,14 @@ export default function PreRecordingChecks({
         </div>
       </div>
 
-      {/* Tips */}
+      {/* Tips — shown as warnings, never blocking */}
       {!allGood && (
         <Card className="gradient-card border-primary/20">
           <CardContent className="py-4">
-            <h3 className="text-sm font-semibold text-foreground mb-2">Tips to improve</h3>
+            <div className="flex items-center gap-2 mb-2">
+              <AlertTriangle className="h-4 w-4 text-primary" />
+              <h3 className="text-sm font-semibold text-foreground">Tips to improve</h3>
+            </div>
             <ul className="text-xs text-muted-foreground space-y-1">
               {lightingQuality.brightness < 80 && <li>• Move to a brighter area or add a light source in front of you</li>}
               {lightingQuality.brightness > 200 && <li>• Reduce brightness — avoid direct light behind you</li>}
@@ -181,8 +187,9 @@ export default function PreRecordingChecks({
         </Card>
       )}
 
+      {/* Continue button — NEVER disabled */}
       <div className="flex justify-end pt-2">
-        <Button onClick={onContinue} disabled={!allGood} className="glow-gold font-semibold">
+        <Button onClick={onContinue} className="glow-gold font-semibold">
           Start Recording <ArrowRight className="ml-2 h-4 w-4" />
         </Button>
       </div>

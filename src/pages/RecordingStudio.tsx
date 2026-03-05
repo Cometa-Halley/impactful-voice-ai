@@ -26,8 +26,10 @@ import { analyzePerformance, type AnalysisResult } from '@/lib/ai-service';
 import { cleanScriptForTeleprompter } from '@/lib/clean-script';
 import type { MethodologyKey } from '@/lib/methodologies';
 
-type Phase = 'checks' | 'ready' | 'recording' | 'review' | 'analyzing' | 'results';
+type Phase = 'checks' | 'ready' | 'countdown' | 'recording' | 'review' | 'analyzing' | 'results';
 type DeviceMode = 'single' | 'multi';
+
+const COUNTDOWN_SECONDS = 5;
 
 const RecordingStudio = () => {
   const { user } = useAuth();
@@ -38,6 +40,7 @@ const RecordingStudio = () => {
   const joinCode = searchParams.get('join');
 
   const [script, setScript] = useState('');
+  const [videoFormat, setVideoFormat] = useState<'vertical' | 'horizontal'>('vertical');
   const [methodology, setMethodology] = useState<MethodologyKey>('sinek');
   const [scriptLoading, setScriptLoading] = useState(true);
   const [phase, setPhase] = useState<Phase>('checks');
@@ -48,29 +51,79 @@ const RecordingStudio = () => {
   const [isRecording, setIsRecording] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const [duration, setDuration] = useState(0);
+  const [countdown, setCountdown] = useState(COUNTDOWN_SECONDS);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const countdownRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
 
   const { stream, videoRef, hasCamera, hasMicrophone, error, isLoading, startDevices, stopDevices } = useMediaDevices();
   const audioQuality = useAudioAnalysis(stream);
   const lightingQuality = useLightingDetection(videoRef, hasCamera && phase === 'checks');
-  const words = useMemo(() => script.split(/\s+/).filter(Boolean), [script]);
+  const cleanedScript = useMemo(() => cleanScriptForTeleprompter(script), [script]);
+  const words = useMemo(() => cleanedScript.split(/\s+/).filter(Boolean), [cleanedScript]);
   const speechRecognition = useSpeechRecognition(words);
 
+  // ── Countdown logic ──────────────────────────────────
+  const startCountdown = useCallback(() => {
+    setPhase('countdown');
+    setCountdown(COUNTDOWN_SECONDS);
+
+    countdownRef.current = setInterval(() => {
+      setCountdown(prev => {
+        if (prev <= 1) {
+          if (countdownRef.current) clearInterval(countdownRef.current);
+          countdownRef.current = null;
+          // Trigger actual recording start
+          requestAnimationFrame(() => actuallyStartRecording());
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+  }, []);
+
+  const actuallyStartRecording = useCallback(() => {
+    if (!stream) return;
+
+    // Dynamic mime type detection
+    const mimeTypes = [
+      'video/webm;codecs=vp9,opus',
+      'video/webm;codecs=vp8,opus',
+      'video/webm',
+      'video/mp4;codecs=h264,aac',
+      'video/mp4',
+    ];
+    const mimeType = mimeTypes.find(t => MediaRecorder.isTypeSupported(t)) || '';
+
+    const recorder = new MediaRecorder(stream, mimeType ? { mimeType } : undefined);
+    chunksRef.current = [];
+    recorder.ondataavailable = (e) => { if (e.data.size > 0) chunksRef.current.push(e.data); };
+    recorder.onstop = () => setPhase('review');
+    recorder.start(1000);
+    mediaRecorderRef.current = recorder;
+    setIsRecording(true);
+    setIsPaused(false);
+    setDuration(0);
+    setPhase('recording');
+    speechRecognition.start();
+  }, [stream, speechRecognition]);
+
+  // Gesture triggers countdown instead of direct recording
   const handleGesture = useCallback(() => {
-    if (phase === 'ready' && !isRecording) handleStartRecording();
-  }, [phase, isRecording]);
+    if (phase === 'ready' && !isRecording) startCountdown();
+  }, [phase, isRecording, startCountdown]);
 
   const gestureDetection = useGestureDetection(videoRef, phase === 'ready' && !isRecording, handleGesture);
 
   useEffect(() => {
     if (!scriptId) { setScript('No script loaded.'); setScriptLoading(false); return; }
     (async () => {
-      const { data, error } = await supabase.from('scripts').select('hook, development, call_to_action, methodology').eq('id', scriptId).single();
+      const { data, error } = await supabase.from('scripts').select('hook, development, call_to_action, methodology, format').eq('id', scriptId).single();
       if (error || !data) { toast.error('Could not load script'); setScriptLoading(false); return; }
       if (data.methodology) setMethodology(data.methodology as MethodologyKey);
+      if (data.format === 'horizontal' || data.format === 'vertical') setVideoFormat(data.format);
       setScript([data.hook, data.development, data.call_to_action].filter(Boolean).join('\n\n'));
       setScriptLoading(false);
     })();
@@ -82,17 +135,15 @@ const RecordingStudio = () => {
     return () => { if (timerRef.current) clearInterval(timerRef.current); };
   }, [isRecording, isPaused]);
 
+  // Clean up countdown on unmount
+  useEffect(() => {
+    return () => { if (countdownRef.current) clearInterval(countdownRef.current); };
+  }, []);
+
+  // Button press also triggers countdown
   const handleStartRecording = useCallback(() => {
-    if (!stream) return;
-    const recorder = new MediaRecorder(stream, { mimeType: 'video/webm;codecs=vp9,opus' });
-    chunksRef.current = [];
-    recorder.ondataavailable = (e) => { if (e.data.size > 0) chunksRef.current.push(e.data); };
-    recorder.onstop = () => setPhase('review');
-    recorder.start(1000);
-    mediaRecorderRef.current = recorder;
-    setIsRecording(true); setIsPaused(false); setDuration(0); setPhase('recording');
-    speechRecognition.start();
-  }, [stream, speechRecognition]);
+    startCountdown();
+  }, [startCountdown]);
 
   const handleStopRecording = useCallback(() => {
     mediaRecorderRef.current?.stop(); setIsRecording(false); setIsPaused(false); speechRecognition.stop();
@@ -139,11 +190,14 @@ const RecordingStudio = () => {
   const phaseDescriptions: Record<Phase, string> = {
     checks: t('recording.checkEnv'),
     ready: t('recording.ready'),
+    countdown: t('recording.getReady', 'Get ready...'),
     recording: t('recording.inProgress'),
     review: t('recording.review'),
     analyzing: t('recording.analyzing'),
     results: t('recording.results'),
   };
+
+  const aspectClass = videoFormat === 'horizontal' ? 'aspect-video' : 'aspect-[9/16]';
 
   return (
     <AppLayout>
@@ -176,12 +230,14 @@ const RecordingStudio = () => {
           </motion.div>
         )}
 
-        {(phase === 'ready' || phase === 'recording') && (
+        {(phase === 'ready' || phase === 'countdown' || phase === 'recording') && (
           <motion.div key="studio" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-4">
             <div className="grid gap-4 lg:grid-cols-5">
               <div className="lg:col-span-2 relative">
-                <div className="aspect-[9/16] max-h-[60vh] bg-black rounded-xl overflow-hidden relative">
+                <div className={`${aspectClass} max-h-[60vh] w-full max-w-full bg-black rounded-xl overflow-hidden relative`}>
                   <video ref={videoRef} autoPlay muted playsInline className="absolute inset-0 w-full h-full object-cover" style={{ transform: 'scaleX(-1)' }} />
+
+                  {/* Gesture detection overlay */}
                   {phase === 'ready' && (
                     <AnimatePresence>
                       {gestureDetection.gestureDetected && (
@@ -194,6 +250,35 @@ const RecordingStudio = () => {
                       )}
                     </AnimatePresence>
                   )}
+
+                  {/* Countdown overlay */}
+                  {phase === 'countdown' && (
+                    <motion.div
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      className="absolute inset-0 flex items-center justify-center bg-black/60 backdrop-blur-sm z-10"
+                    >
+                      <AnimatePresence mode="wait">
+                        <motion.div
+                          key={countdown}
+                          initial={{ scale: 0.3, opacity: 0 }}
+                          animate={{ scale: 1, opacity: 1 }}
+                          exit={{ scale: 1.8, opacity: 0 }}
+                          transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+                          className="flex flex-col items-center gap-4"
+                        >
+                          <span className="text-8xl sm:text-9xl font-bold text-primary drop-shadow-[0_0_40px_hsl(var(--primary)/0.5)]">
+                            {countdown}
+                          </span>
+                          <span className="text-sm text-muted-foreground font-medium tracking-wide uppercase">
+                            {t('recording.getReady', 'Get ready...')}
+                          </span>
+                        </motion.div>
+                      </AnimatePresence>
+                    </motion.div>
+                  )}
+
+                  {/* Recording indicator */}
                   {isRecording && (
                     <div className="absolute top-3 left-3 flex items-center gap-2 bg-black/60 backdrop-blur px-3 py-1.5 rounded-full">
                       <motion.div className="h-2.5 w-2.5 rounded-full bg-destructive" animate={{ opacity: isPaused ? 0.3 : [1, 0.3, 1] }} transition={{ repeat: Infinity, duration: 1 }} />
@@ -203,10 +288,12 @@ const RecordingStudio = () => {
                 </div>
               </div>
               <div className="lg:col-span-3 min-h-[300px] lg:min-h-0">
-                <Teleprompter script={cleanScriptForTeleprompter(script)} currentWordIndex={speechRecognition.currentWordIndex} isActive={isRecording} />
+                <Teleprompter script={cleanedScript} currentWordIndex={speechRecognition.currentWordIndex} isActive={isRecording} />
               </div>
             </div>
-            <RecordingControls isRecording={isRecording} isPaused={isPaused} gestureReady={phase === 'ready'} onStart={handleStartRecording} onStop={handleStopRecording} onPause={handlePause} onResume={handleResume} duration={duration} />
+            {phase !== 'countdown' && (
+              <RecordingControls isRecording={isRecording} isPaused={isPaused} gestureReady={phase === 'ready'} onStart={handleStartRecording} onStop={handleStopRecording} onPause={handlePause} onResume={handleResume} duration={duration} />
+            )}
             {speechRecognition.isListening && <div className="text-center"><p className="text-xs text-muted-foreground">{t('recording.listening')} <span className="text-foreground/70">{speechRecognition.transcript}</span></p></div>}
             {!speechRecognition.isSupported && isRecording && <p className="text-xs text-center text-muted-foreground">{t('recording.speechNotSupported')}</p>}
           </motion.div>
@@ -215,7 +302,7 @@ const RecordingStudio = () => {
         {phase === 'review' && recordedBlob && (
           <motion.div key="review" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-6">
             <div className="max-w-2xl mx-auto">
-              <div className="aspect-[9/16] max-h-[60vh] bg-black rounded-xl overflow-hidden">
+              <div className={`${aspectClass} max-h-[60vh] bg-black rounded-xl overflow-hidden`}>
                 <video src={URL.createObjectURL(recordedBlob)} controls className="w-full h-full object-contain" />
               </div>
             </div>
