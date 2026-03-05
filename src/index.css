@@ -122,7 +122,7 @@
   }
 
   .text-gradient-brand {
-    background: linear-gradient(135deg, hsl(250 40% 65%), hsl(195 85% 50%), hsl(40 92% 55%));
+    background: linear-gradient(135deg, #747efe, #c738b8, #fea56a, #fcd389);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
