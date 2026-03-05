@@ -206,7 +206,7 @@ const RecordingStudio = () => {
               </div>
             </div>
             <RecordingControls isRecording={isRecording} isPaused={isPaused} gestureReady={phase === 'ready'} onStart={handleStartRecording} onStop={handleStopRecording} onPause={handlePause} onResume={handleResume} duration={duration} />
-            {speechRecognition.isListening && <div className="text-center"><p className="text-xs text-muted-foreground">🎤 {t('recording.listening')} <span className="text-foreground/70">{speechRecognition.transcript}</span></p></div>}
+            {speechRecognition.isListening && <div className="text-center"><p className="text-xs text-muted-foreground">{t('recording.listening')} <span className="text-foreground/70">{speechRecognition.transcript}</span></p></div>}
             {!speechRecognition.isSupported && isRecording && <p className="text-xs text-center text-muted-foreground">{t('recording.speechNotSupported')}</p>}
           </motion.div>
         )}
