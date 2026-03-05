@@ -7,7 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import {
   Sparkles, FileText, MessageSquare, CheckCircle2, ArrowRight, ArrowLeft,
-  Loader2, Send, Zap, Heart, Target, Presentation, Check,
+  Loader2, Send, Zap, Heart, Target, Presentation, Check, Video,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { METHODOLOGIES, getTranslatedMethodologies, type MethodologyKey } from '@/lib/methodologies';
@@ -187,6 +187,7 @@ const CreateVideo = () => {
     { label: t('createVideo.steps.strategy'), icon: Target },
     { label: t('createVideo.steps.script'), icon: FileText },
     { label: t('createVideo.steps.refine'), icon: MessageSquare },
+    { label: t('createVideo.steps.record'), icon: Video },
     { label: t('createVideo.steps.validate'), icon: CheckCircle2 },
   ];
 
