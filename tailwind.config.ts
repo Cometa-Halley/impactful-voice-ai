@@ -62,6 +62,7 @@ export default {
         "energy-cyan": "hsl(var(--energy-cyan))",
         "action-gold": "hsl(var(--action-gold))",
         "nav-hover": "hsl(var(--nav-hover))",
+        "pink-brand": "hsl(var(--pink-brand))",
       },
       borderRadius: {
         lg: "var(--radius)",
