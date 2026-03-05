@@ -262,8 +262,13 @@
       "strategy": "Strategy",
       "script": "Script",
       "refine": "Refine",
+      "record": "Record",
       "validate": "Validate"
     },
+    "recordingStepTitle": "Recording Studio",
+    "recordingStepDesc": "Record your message with the teleprompter and assistance tools.",
+    "goToStudio": "Go to Studio",
+    "skipRecording": "Skip for now",
     "chooseImpact": "Choose the communication impact you want to create.",
     "continue": "Continue",
     "strategicQuestions": "Strategic Questions",

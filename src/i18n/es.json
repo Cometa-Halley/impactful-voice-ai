@@ -262,8 +262,13 @@
       "strategy": "Estrategia",
       "script": "Guion",
       "refine": "Refinar",
+      "record": "Grabar",
       "validate": "Validar"
     },
+    "recordingStepTitle": "Estudio de Grabación",
+    "recordingStepDesc": "Graba tu mensaje con el teleprompter y las herramientas de asistencia.",
+    "goToStudio": "Ir al Estudio",
+    "skipRecording": "Saltar por ahora",
     "chooseImpact": "Elige el impacto comunicativo que quieres crear.",
     "continue": "Continuar",
     "strategicQuestions": "Preguntas Estratégicas",

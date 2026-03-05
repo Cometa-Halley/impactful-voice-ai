@@ -7,7 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import {
   Sparkles, FileText, MessageSquare, CheckCircle2, ArrowRight, ArrowLeft,
-  Loader2, Send, Zap, Heart, Target, Presentation, Check,
+  Loader2, Send, Zap, Heart, Target, Presentation, Check, Video,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { METHODOLOGIES, getTranslatedMethodologies, type MethodologyKey } from '@/lib/methodologies';
@@ -187,6 +187,7 @@ const CreateVideo = () => {
     { label: t('createVideo.steps.strategy'), icon: Target },
     { label: t('createVideo.steps.script'), icon: FileText },
     { label: t('createVideo.steps.refine'), icon: MessageSquare },
+    { label: t('createVideo.steps.record'), icon: Video },
     { label: t('createVideo.steps.validate'), icon: CheckCircle2 },
   ];
 
@@ -459,8 +460,79 @@ const CreateVideo = () => {
           </motion.div>
         )}
 
-        {/* ── STEP 5: Validation ─────────────────────── */}
+        {/* ── STEP 5: Recording Studio ───────────────── */}
         {currentStep === 4 && (
+          <motion.div key="step5-record" initial="hidden" animate="visible" exit="exit" variants={fadeUp} className="space-y-6">
+            <div>
+              <h2 className="text-lg font-semibold text-foreground">{t('createVideo.recordingStepTitle')}</h2>
+              <p className="text-sm text-muted-foreground mt-1">
+                {t('createVideo.recordingStepDesc')}
+              </p>
+            </div>
+
+            {/* Script preview */}
+            <Card className="gradient-card border-border">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm text-muted-foreground">{t('createVideo.currentScript')}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="whitespace-pre-wrap text-sm text-foreground leading-relaxed font-mono max-h-48 overflow-y-auto">
+                  {script}
+                </div>
+              </CardContent>
+            </Card>
+
+            <div className="flex items-center justify-center">
+              <Button
+                size="lg"
+                onClick={async () => {
+                  if (!user || !selectedMethodology || !script) return;
+                  setIsSaving(true);
+                  try {
+                    const { data, error } = await supabase.from('scripts').insert({
+                      user_id: user.id,
+                      methodology: selectedMethodology,
+                      hook: script.split('\n\n')[0] || '',
+                      development: script,
+                      call_to_action: '',
+                      duration: '60s',
+                      format: 'vertical',
+                    }).select('id').single();
+                    if (error) throw error;
+                    navigate(`/recording-studio?scriptId=${data.id}`);
+                  } catch {
+                    toast.error(t('createVideo.failedSave'));
+                  } finally {
+                    setIsSaving(false);
+                  }
+                }}
+                disabled={isSaving}
+                className="glow-gold font-semibold"
+              >
+                {isSaving ? (
+                  <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> {t('createVideo.saving')}</>
+                ) : (
+                  <><Video className="mr-2 h-5 w-5" /> {t('createVideo.goToStudio')}</>
+                )}
+              </Button>
+            </div>
+
+            <div className="flex justify-between pt-2">
+              <Button variant="ghost" onClick={() => setCurrentStep(3)}>
+                <ArrowLeft className="mr-2 h-4 w-4" /> {t('createVideo.back')}
+              </Button>
+              <Button
+                variant="ghost"
+                onClick={() => setCurrentStep(5)}
+              >
+                {t('createVideo.skipRecording')} <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            </div>
+          </motion.div>
+        )}
+
+        {/* ── STEP 5: Validation ─────────────────────── */}
+        {currentStep === 5 && (
           <motion.div key="step5" initial="hidden" animate="visible" exit="exit" variants={fadeUp} className="space-y-6">
             <div>
               <h2 className="text-lg font-semibold text-foreground">{t('createVideo.validateScript')}</h2>
@@ -504,8 +576,8 @@ const CreateVideo = () => {
             )}
 
             <div className="flex justify-between pt-2">
-              <Button variant="ghost" onClick={() => setCurrentStep(3)}>
-                <ArrowLeft className="mr-2 h-4 w-4" /> {t('createVideo.backToRefine')}
+              <Button variant="ghost" onClick={() => setCurrentStep(4)}>
+                <ArrowLeft className="mr-2 h-4 w-4" /> {t('createVideo.back')}
               </Button>
               <Button
                 onClick={handleSaveAndContinue}
