@@ -23,6 +23,7 @@ import DevicePairing from '@/components/recording/DevicePairing';
 import PerformanceAnalysis from '@/components/recording/PerformanceAnalysis';
 
 import { analyzePerformance, type AnalysisResult } from '@/lib/ai-service';
+import { cleanScriptForTeleprompter } from '@/lib/clean-script';
 import type { MethodologyKey } from '@/lib/methodologies';
 
 type Phase = 'checks' | 'ready' | 'recording' | 'review' | 'analyzing' | 'results';
@@ -202,7 +203,7 @@ const RecordingStudio = () => {
                 </div>
               </div>
               <div className="lg:col-span-3 min-h-[300px] lg:min-h-0">
-                <Teleprompter script={script} currentWordIndex={speechRecognition.currentWordIndex} isActive={isRecording} />
+                <Teleprompter script={cleanScriptForTeleprompter(script)} currentWordIndex={speechRecognition.currentWordIndex} isActive={isRecording} />
               </div>
             </div>
             <RecordingControls isRecording={isRecording} isPaused={isPaused} gestureReady={phase === 'ready'} onStart={handleStartRecording} onStop={handleStopRecording} onPause={handlePause} onResume={handleResume} duration={duration} />
