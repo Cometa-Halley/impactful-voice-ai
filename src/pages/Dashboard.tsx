@@ -349,7 +349,7 @@ const Dashboard = () => {
                 </CardHeader>
                 <CardContent>
                   <span className="inline-flex items-center text-sm text-primary opacity-0 transition-opacity group-hover:opacity-100">
-                    Go <ArrowRight className="ml-1 h-3 w-3" />
+                    {t('dashboard.go')} <ArrowRight className="ml-1 h-3 w-3" />
                   </span>
                 </CardContent>
               </Card>
