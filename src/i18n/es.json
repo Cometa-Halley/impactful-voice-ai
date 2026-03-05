@@ -151,7 +151,8 @@
     "quickActions": "Acciones Rápidas",
     "createVideoDesc": "Inicia una nueva sesión con IA",
     "myVideosDesc": "Ve tus grabaciones",
-    "templatesDesc": "Explora marcos de trabajo"
+    "templatesDesc": "Explora marcos de trabajo",
+    "go": "Ir"
   },
   "profile": {
     "title": "Perfil",

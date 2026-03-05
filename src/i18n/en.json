@@ -151,7 +151,8 @@
     "quickActions": "Quick Actions",
     "createVideoDesc": "Start a new AI-powered session",
     "myVideosDesc": "View your recordings",
-    "templatesDesc": "Explore frameworks"
+    "templatesDesc": "Explore frameworks",
+    "go": "Go"
   },
   "profile": {
     "title": "Profile",
