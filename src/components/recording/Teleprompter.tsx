@@ -18,8 +18,8 @@ function countSyllables(text: string): number {
 
 function lineDurationMs(words: string[]): number {
   const syllables = words.reduce((sum, w) => sum + countSyllables(w), 0);
-  const ms = (syllables / SYLLABLES_PER_2S) * 2000;
-  return Math.max(2000, Math.round(ms));
+  const ms = (syllables / SYLLABLES_PER_PERIOD) * PERIOD_MS;
+  return Math.max(1800, Math.round(ms));
 }
 
 function splitIntoBreathLines(text: string, maxWords = 8, minWords = 3): string[][] {
