@@ -12,6 +12,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useVideoFlowStore } from '@/stores/videoFlowStore';
 import { getTranslatedMethodologies } from '@/lib/methodologies';
 import { generateScript } from '@/lib/ai-service';
+import { formatScriptForDisplay } from '@/lib/clean-script';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
