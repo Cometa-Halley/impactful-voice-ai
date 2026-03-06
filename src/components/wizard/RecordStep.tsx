@@ -46,6 +46,13 @@ export default function RecordStep({ onRecordingComplete, mediaDevices }: Props)
 
   const audioQuality = useAudioAnalysis(stream);
   const lightingQuality = useLightingDetection(videoRef, hasCamera && recordPhase === 'checks');
+
+  // Re-attach stream to video element when phase changes (checks → ready/recording)
+  useEffect(() => {
+    if (videoRef.current && stream) {
+      videoRef.current.srcObject = stream;
+    }
+  }, [videoRef, stream, recordPhase]);
   const cleanedScript = useMemo(() => cleanScriptForTeleprompter(script), [script]);
   const words = useMemo(() => cleanedScript.split(/\s+/).filter(Boolean), [cleanedScript]);
   const speechRecognition = useSpeechRecognition(words);
