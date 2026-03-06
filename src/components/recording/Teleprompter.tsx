@@ -129,7 +129,7 @@ export default function Teleprompter({ script, currentWordIndex, isActive }: Pro
                 className="h-full rounded-full bg-gradient-to-r from-primary to-accent"
                 initial={{ width: '0%' }}
                 animate={{ width: '100%' }}
-                transition={{ duration: LINE_DURATION_MS / 1000, ease: 'linear' }}
+                transition={{ duration: currentDuration / 1000, ease: 'linear' }}
               />
             </div>
           )}
