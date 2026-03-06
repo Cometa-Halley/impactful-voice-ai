@@ -81,8 +81,8 @@ export default function PreRecordingChecks({
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Camera preview with rule-of-thirds grid */}
-        <Card className="gradient-card border-border overflow-hidden">
-          <CardContent className="p-0">
+        <Card className="gradient-card border-border overflow-hidden flex items-center justify-center h-full">
+          <CardContent className="p-0 w-full">
             <div className="relative aspect-video bg-black overflow-hidden flex items-center justify-center">
               <video
                 ref={videoRef}
