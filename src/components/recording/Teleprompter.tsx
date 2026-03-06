@@ -85,6 +85,7 @@ export default function Teleprompter({ script, currentWordIndex, isActive }: Pro
 
   const activeLineIndex = isActive ? timedLineIndex : 0;
   const activeLine = lines[activeLineIndex] || [];
+  const nextLine = lines[activeLineIndex + 1] || [];
 
   return (
     <div className="absolute top-0 left-0 right-0 z-20 flex flex-col items-center pt-2 sm:pt-3 px-2 sm:px-4 pointer-events-none">
