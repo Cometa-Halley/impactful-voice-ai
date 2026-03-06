@@ -326,7 +326,13 @@
         "¿Cuál es el resultado tangible — el producto, servicio o idea que estás ofreciendo?",
         "¿Quién es tu audiencia y qué quieres que crean después de escucharte?"
       ],
-      "scriptStructure": ["POR QUÉ — Propósito y creencia", "CÓMO — Proceso y diferenciación", "QUÉ — Oferta y prueba"]
+      "scriptStructure": ["POR QUÉ — Propósito y creencia", "CÓMO — Proceso y diferenciación", "QUÉ — Oferta y prueba"],
+      "placeholders": [
+        "ej. Ayudo a emprendedores a encontrar claridad porque creo que cada idea merece una voz...",
+        "ej. A través de coaching 1 a 1 y marcos que simplifican ideas complejas...",
+        "ej. Un programa de comunicación de 6 semanas que transforma cómo los fundadores presentan...",
+        "ej. Fundadores en etapa temprana que luchan por articular su visión claramente..."
+      ]
     },
     "obama": {
       "name": "Obama — Conectar",
@@ -338,7 +344,13 @@
         "¿Qué verdad universal o valor compartido revela tu historia?",
         "¿Qué acción o reflexión quieres que tu audiencia se lleve?"
       ],
-      "scriptStructure": ["HISTORIA PERSONAL — Experiencia ancla", "CONFLICTO — Desafío y tensión", "VERDAD UNIVERSAL — Valor compartido", "LLAMADO A LA UNIÓN — Acción colectiva"]
+      "scriptStructure": ["HISTORIA PERSONAL — Experiencia ancla", "CONFLICTO — Desafío y tensión", "VERDAD UNIVERSAL — Valor compartido", "LLAMADO A LA UNIÓN — Acción colectiva"],
+      "placeholders": [
+        "ej. De niño, vi a mi madre trabajar en dos empleos mientras seguía estudiando...",
+        "ej. El momento en que fallé mi primera presentación pública lo cambió todo para mí...",
+        "ej. Todos compartimos el deseo de ser escuchados y de que nuestras historias importen...",
+        "ej. Quiero que se sientan empoderados para compartir su propia historia sin miedo..."
+      ]
     },
     "robbins": {
       "name": "Robbins — Activar",
@@ -350,7 +362,13 @@
         "¿Cuál es el primer paso concreto que pueden dar ahora mismo?",
         "¿Qué estado emocional quieres que sientan — urgencia, empoderamiento, emoción?"
       ],
-      "scriptStructure": ["INTERRUPCIÓN DE PATRÓN — Rompe el status quo", "PUNTO DE DOLOR — Expón el problema real", "VISIÓN — Muestra la transformación", "COMANDO DE ACCIÓN — Siguiente paso inmediato"]
+      "scriptStructure": ["INTERRUPCIÓN DE PATRÓN — Rompe el status quo", "PUNTO DE DOLOR — Expón el problema real", "VISIÓN — Muestra la transformación", "COMANDO DE ACCIÓN — Siguiente paso inmediato"],
+      "placeholders": [
+        "ej. Creen que necesitan ser perfectos antes de empezar a crear contenido...",
+        "ej. La confianza para darle a grabar y hablar con autenticidad sin guion...",
+        "ej. Graba un video de 30 segundos ahora mismo compartiendo algo que aprendiste hoy...",
+        "ej. Emoción imparable — la sensación de que SÍ PUEDEN empezar hoy..."
+      ]
     },
     "jobs": {
       "name": "Jobs — Presentar",
@@ -362,7 +380,13 @@
         "¿Cuál es el dato, demo o resultado más impresionante que puedes mostrar?",
         "¿Cómo quieres que la audiencia recuerde esto — cuál es el \"una cosa más\"?"
       ],
-      "scriptStructure": ["PROBLEMA — Prepara el escenario", "SOLUCIÓN — Presenta tu respuesta", "DEMO/PRUEBA — Muestra, no cuentes", "UNA COSA MÁS — Cierre memorable"]
+      "scriptStructure": ["PROBLEMA — Prepara el escenario", "SOLUCIÓN — Presenta tu respuesta", "DEMO/PRUEBA — Muestra, no cuentes", "UNA COSA MÁS — Cierre memorable"],
+      "placeholders": [
+        "ej. La mayoría pasa horas preparando presentaciones que nadie recuerda...",
+        "ej. Nuestro coach de IA analiza tu entrega en tiempo real y da retroalimentación instantánea...",
+        "ej. Los usuarios mejoran su puntuación de oratoria un 40% en solo 3 sesiones...",
+        "ej. \"Una cosa más\" — también escribe tu guion en 30 segundos..."
+      ]
     }
   },
   "templateContent": {
