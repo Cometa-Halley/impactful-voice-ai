@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { useVideoFlowStore } from '@/stores/videoFlowStore';
 import { motion } from 'framer-motion';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -47,6 +48,8 @@ export default function PreRecordingChecks({
   isLoading, onStartDevices, onContinue, videoRef, stream,
 }: Props) {
   const { t } = useTranslation();
+  const { videoFormat } = useVideoFlowStore();
+  const aspectClass = videoFormat === 'horizontal' ? 'aspect-video' : 'aspect-[9/16]';
 
   // Sync stream to video element
   useEffect(() => {
@@ -83,7 +86,7 @@ export default function PreRecordingChecks({
         {/* Camera preview with rule-of-thirds grid */}
         <Card className="gradient-card border-border overflow-hidden flex items-center justify-center h-full">
           <CardContent className="p-0 w-full">
-            <div className="relative aspect-video bg-black overflow-hidden flex items-center justify-center">
+            <div className={`relative ${aspectClass} bg-black overflow-hidden flex items-center justify-center`}>
               <video
                 ref={videoRef}
                 autoPlay
