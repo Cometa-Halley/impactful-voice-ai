@@ -116,6 +116,29 @@ export default function Teleprompter({ script, currentWordIndex, isActive }: Pro
             </motion.p>
           </AnimatePresence>
 
+          {/* Next line preview */}
+          {nextLine.length > 0 && (
+            <AnimatePresence mode="wait">
+              <motion.p
+                key={`next-${activeLineIndex + 1}`}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 0.4 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.3 }}
+                className="text-center leading-snug whitespace-normal"
+              >
+                {nextLine.map((word, i) => (
+                  <span
+                    key={`next-${activeLineIndex + 1}-${i}`}
+                    className="inline-block mx-[2px] sm:mx-[3px] text-xs sm:text-sm font-medium tracking-wide text-white/60"
+                  >
+                    {word}
+                  </span>
+                ))}
+              </motion.p>
+            </AnimatePresence>
+          )}
+
           {/* Line progress bar — fills over 3s */}
           {isActive && (
             <div className="w-full max-w-[12rem] h-[2px] bg-white/[0.08] rounded-full overflow-hidden">
