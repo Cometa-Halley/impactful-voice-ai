@@ -22,13 +22,13 @@ Current methodology: ${methodology}
 
 RULES:
 - You receive the current script and a user instruction for how to change it
-- Apply the requested change and return the FULL updated script
+- Apply the requested change and return ONLY the FULL updated script
 - Maintain the same structure (Hook, Development, Call to Action) and stage directions in [brackets]
 - Keep the methodology's tone and principles intact
 - If the user asks to shorten, actually cut content — don't just summarize
 - If the user asks for more emotion, add vivid language and sensory details
-- Only return the refined script, no explanations or preamble
-- If the instruction is a question or unclear, briefly clarify what you changed at the end after a "---" separator${langInstruction}`;
+- CRITICAL: Return ONLY the refined script text. Do NOT add any explanations, commentary, notes, summaries, or descriptions of what you changed. No "---" separators followed by explanations. No preamble. Just the pure script.
+- If the instruction is a question, still return only the modified script with the best interpretation of what they want${langInstruction}`;
 
     const messages: Array<{role: string; content: string}> = [
       { role: "system", content: systemPrompt },
