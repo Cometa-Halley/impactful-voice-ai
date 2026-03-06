@@ -4,12 +4,12 @@ interface SpeechRecognitionHook {
   isListening: boolean;
   transcript: string;
   currentWordIndex: number;
+  error: string | null;
   start: () => void;
   stop: () => void;
   isSupported: boolean;
 }
 
-// Extend Window for SpeechRecognition
 interface SpeechRecognitionEvent extends Event {
   results: SpeechRecognitionResultList;
   resultIndex: number;
@@ -19,6 +19,7 @@ export function useSpeechRecognition(words: string[]): SpeechRecognitionHook {
   const [isListening, setIsListening] = useState(false);
   const [transcript, setTranscript] = useState('');
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
+  const [error, setError] = useState<string | null>(null);
   const recognitionRef = useRef<any>(null);
   const wordIndexRef = useRef(0);
 
@@ -32,10 +33,8 @@ export function useSpeechRecognition(words: string[]): SpeechRecognitionHook {
     const spokenWords = spoken.trim().split(/\s+/).map(normalizeWord).filter(Boolean);
     if (!spokenWords.length) return;
 
-    // Try to match spoken words against script words starting from current index
     let idx = wordIndexRef.current;
     for (const sw of spokenWords) {
-      // Look ahead up to 3 words for fuzzy matching
       for (let offset = 0; offset < 4 && idx + offset < words.length; offset++) {
         const scriptWord = normalizeWord(words[idx + offset]);
         if (scriptWord === sw || scriptWord.startsWith(sw) || sw.startsWith(scriptWord)) {
@@ -52,11 +51,12 @@ export function useSpeechRecognition(words: string[]): SpeechRecognitionHook {
 
   const start = useCallback(() => {
     if (!isSupported) return;
+    setError(null);
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     const recognition = new SpeechRecognition();
     recognition.continuous = true;
     recognition.interimResults = true;
-    recognition.lang = 'es-ES'; // Default to Spanish, can be made configurable
+    recognition.lang = 'es-ES';
 
     recognition.onresult = (e: SpeechRecognitionEvent) => {
       let interim = '';
@@ -75,14 +75,16 @@ export function useSpeechRecognition(words: string[]): SpeechRecognitionHook {
     };
 
     recognition.onend = () => {
-      // Auto-restart if still listening
       if (recognitionRef.current) {
         try { recognition.start(); } catch {}
       }
     };
 
     recognition.onerror = (e: any) => {
-      if (e.error !== 'no-speech' && e.error !== 'aborted') {
+      if (e.error === 'not-allowed') {
+        setError('microphone-blocked');
+        stop();
+      } else if (e.error !== 'no-speech' && e.error !== 'aborted') {
         console.error('Speech recognition error:', e.error);
       }
     };
@@ -113,5 +115,5 @@ export function useSpeechRecognition(words: string[]): SpeechRecognitionHook {
     };
   }, []);
 
-  return { isListening, transcript, currentWordIndex, start, stop, isSupported };
+  return { isListening, transcript, currentWordIndex, error, start, stop, isSupported };
 }

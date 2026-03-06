@@ -1,9 +1,10 @@
 import { supabase } from '@/integrations/supabase/client';
 import type { MethodologyKey } from './methodologies';
+import type { StructuredScript } from './clean-script';
 
 const FUNCTIONS_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1`;
 
-// ── SSE stream helper ──────────────────────────────────────────────
+// ── SSE stream helper (used by refine-script, coaching-tips) ───────
 
 async function streamFromEdge({
   functionName,
@@ -94,17 +95,28 @@ export interface GenerateScriptParams {
   format?: 'vertical' | 'horizontal';
   duration?: '30s' | '60s';
   language?: string;
-  onDelta: (text: string) => void;
-  onDone: () => void;
 }
 
-export async function generateScript({ methodology, answers, format, duration, language, onDelta, onDone }: GenerateScriptParams) {
-  return streamFromEdge({
-    functionName: 'generate-script',
-    body: { methodology, answers, format, duration, language },
-    onDelta,
-    onDone,
+/**
+ * Calls the generate-script edge function which now returns a structured JSON
+ * response (non-streaming) with title and segments.
+ */
+export async function generateScript(params: GenerateScriptParams): Promise<StructuredScript> {
+  const resp = await fetch(`${FUNCTIONS_URL}/generate-script`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+    },
+    body: JSON.stringify(params),
   });
+
+  if (!resp.ok) {
+    const err = await resp.json().catch(() => ({ error: 'Unknown error' }));
+    throw new Error(err.error || `Error ${resp.status}`);
+  }
+
+  return (await resp.json()) as StructuredScript;
 }
 
 export interface RefineScriptParams {

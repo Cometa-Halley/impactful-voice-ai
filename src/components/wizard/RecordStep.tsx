@@ -260,6 +260,12 @@ export default function RecordStep({ onRecordingComplete, mediaDevices }: Props)
         )}
       </div>
 
+      {speechRecognition.error === 'microphone-blocked' && (
+        <div className="text-center bg-destructive/10 border border-destructive/30 rounded-lg px-4 py-2">
+          <p className="text-sm text-destructive">{t('recording.micBlocked', 'Microphone access was blocked. Please allow microphone permissions in your browser settings.')}</p>
+        </div>
+      )}
+
       {speechRecognition.isListening && (
         <div className="text-center">
           <p className="text-xs text-muted-foreground">{t('recording.listening')} <span className="text-foreground/70">{speechRecognition.transcript}</span></p>

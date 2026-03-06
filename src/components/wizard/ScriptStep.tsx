@@ -7,6 +7,7 @@ import { Loader2, Send, Sparkles, Check, X } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useVideoFlowStore } from '@/stores/videoFlowStore';
 import { refineScript } from '@/lib/ai-service';
+import { formatScriptForDisplay } from '@/lib/clean-script';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 24 },
@@ -201,7 +202,7 @@ export default function ScriptStep() {
                 ) : (
                   /* Normal script view */
                   <div className="whitespace-pre-wrap text-sm text-foreground leading-relaxed font-mono">
-                    {script}
+                    {formatScriptForDisplay(script)}
                     {isGenerating && <span className="inline-block w-2 h-4 bg-primary animate-pulse ml-0.5" />}
                   </div>
                 )}
