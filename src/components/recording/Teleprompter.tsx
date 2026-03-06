@@ -9,8 +9,6 @@ interface Props {
 
 /**
  * Language-agnostic breath-aware splitter.
- * Splits on punctuation boundaries first, then enforces a max word limit
- * so every line stays comfortable to read aloud in one breath.
  */
 function splitIntoBreathLines(text: string, maxWords = 8, minWords = 3): string[][] {
   const words = text.split(/\s+/).filter(Boolean);
@@ -34,19 +32,16 @@ function splitIntoBreathLines(text: string, maxWords = 8, minWords = 3): string[
     const nextIsUpper =
       i + 1 < words.length && /^[A-ZÁÉÍÓÚÑ¿¡]/.test(words[i + 1]);
 
-    // Break after punctuation if we have enough words
     if (endsWithPause && buf.length >= minWords) {
       flush();
       continue;
     }
 
-    // Break before a new sentence (uppercase after non-comma punctuation)
     if (endsWithPause && nextIsUpper && buf.length >= 2) {
       flush();
       continue;
     }
 
-    // Hard limit: force break at maxWords
     if (buf.length >= maxWords) {
       flush();
     }
@@ -57,10 +52,9 @@ function splitIntoBreathLines(text: string, maxWords = 8, minWords = 3): string[
 }
 
 export default function Teleprompter({ script, currentWordIndex, isActive }: Props) {
-  const words = useMemo(() => script.split(/\s+/).filter(Boolean), [script]);
+  const totalWords = useMemo(() => script.split(/\s+/).filter(Boolean).length, [script]);
   const lines = useMemo(() => splitIntoBreathLines(script), [script]);
 
-  // Which line contains the current word?
   const { activeLineIndex, lineStartIndex } = useMemo(() => {
     let count = 0;
     for (let i = 0; i < lines.length; i++) {
@@ -71,11 +65,13 @@ export default function Teleprompter({ script, currentWordIndex, isActive }: Pro
     }
     return {
       activeLineIndex: lines.length - 1,
-      lineStartIndex: Math.max(0, words.length - (lines[lines.length - 1]?.length ?? 0)),
+      lineStartIndex: Math.max(0, totalWords - (lines[lines.length - 1]?.length ?? 0)),
     };
-  }, [lines, currentWordIndex, words.length]);
+  }, [lines, currentWordIndex, totalWords]);
 
   const activeLine = lines[activeLineIndex] || [];
+  const wordsReadInLine = Math.max(0, currentWordIndex - lineStartIndex);
+  const lineProgress = activeLine.length > 0 ? wordsReadInLine / activeLine.length : 0;
 
   return (
     <div className="relative w-full">
@@ -83,15 +79,15 @@ export default function Teleprompter({ script, currentWordIndex, isActive }: Pro
       <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/40 to-transparent backdrop-blur-md pointer-events-none" />
 
       <div className="relative z-[5] px-3 sm:px-6 py-3 sm:py-4 flex flex-col items-center gap-2">
-        {/* Single breath-line */}
+        {/* Single breath-line with karaoke effect */}
         <AnimatePresence mode="wait">
           <motion.p
             key={activeLineIndex}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.22, ease: 'easeOut' }}
-            className="text-center leading-snug"
+            initial={{ opacity: 0, y: 14, filter: 'blur(4px)' }}
+            animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+            exit={{ opacity: 0, y: -10, filter: 'blur(3px)' }}
+            transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+            className="text-center leading-relaxed"
           >
             {activeLine.map((word, i) => {
               const globalIdx = lineStartIndex + i;
@@ -99,31 +95,48 @@ export default function Teleprompter({ script, currentWordIndex, isActive }: Pro
               const isCurrent = globalIdx === currentWordIndex;
 
               return (
-                <span
+                <motion.span
                   key={`${activeLineIndex}-${i}`}
-                  className={`inline-block mx-[2px] text-base sm:text-lg md:text-xl font-bold transition-all duration-200 ${
+                  animate={{
+                    opacity: isPast ? 0.2 : 1,
+                    scale: isCurrent ? 1.08 : 1,
+                    y: isPast ? -2 : 0,
+                  }}
+                  transition={{ duration: 0.25, ease: 'easeOut' }}
+                  className={`inline-block mx-[3px] text-base sm:text-lg md:text-xl font-bold ${
                     isCurrent
-                      ? 'text-primary scale-110 drop-shadow-[0_0_14px_hsl(var(--primary)/0.8)]'
+                      ? 'text-primary drop-shadow-[0_0_16px_hsl(var(--primary)/0.9)]'
                       : isPast
-                        ? 'text-primary/30'
+                        ? 'text-primary/20'
                         : 'text-white/80'
                   }`}
                 >
                   {word}
-                </span>
+                </motion.span>
               );
             })}
           </motion.p>
         </AnimatePresence>
 
-        {/* Progress */}
+        {/* Line progress + overall progress */}
         {isActive && (
-          <div className="w-full max-w-xs h-0.5 bg-white/10 rounded-full overflow-hidden">
-            <motion.div
-              className="h-full bg-primary rounded-full"
-              animate={{ width: `${(currentWordIndex / Math.max(words.length, 1)) * 100}%` }}
-              transition={{ duration: 0.3 }}
-            />
+          <div className="w-full max-w-xs flex flex-col gap-1 items-center">
+            {/* Line progress bar */}
+            <div className="w-full h-[3px] bg-white/10 rounded-full overflow-hidden">
+              <motion.div
+                className="h-full rounded-full bg-gradient-to-r from-primary via-primary to-accent"
+                animate={{ width: `${Math.min(lineProgress * 100, 100)}%` }}
+                transition={{ duration: 0.3, ease: 'easeOut' }}
+              />
+            </div>
+            {/* Overall progress (subtle) */}
+            <div className="w-2/3 h-[1.5px] bg-white/5 rounded-full overflow-hidden">
+              <motion.div
+                className="h-full bg-primary/40 rounded-full"
+                animate={{ width: `${(currentWordIndex / Math.max(totalWords, 1)) * 100}%` }}
+                transition={{ duration: 0.4 }}
+              />
+            </div>
           </div>
         )}
       </div>
