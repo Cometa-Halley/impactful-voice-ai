@@ -95,50 +95,44 @@ export default function Teleprompter({ script, currentWordIndex, isActive }: Pro
         {/* Dark pill background */}
         <div className="absolute inset-0 bg-black/70 backdrop-blur-lg rounded-xl border border-white/[0.06]" />
 
-        <div className="relative z-[1] px-4 sm:px-6 py-2.5 sm:py-3 flex flex-col items-center gap-1.5">
-          {/* Active line */}
-          <AnimatePresence mode="wait">
-            <motion.p
+        <div className="relative z-[1] px-4 sm:px-6 py-2.5 sm:py-3 flex flex-col items-center gap-1 overflow-hidden">
+          {/* Vertical carousel */}
+          <AnimatePresence mode="popLayout" initial={false}>
+            <motion.div
               key={activeLineIndex}
-              initial={{ opacity: 0, y: 8, filter: 'blur(3px)' }}
-              animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-              exit={{ opacity: 0, y: -6, filter: 'blur(2px)' }}
-              transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
-              className="text-center leading-snug whitespace-normal"
+              initial={{ y: '100%', opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: '-100%', opacity: 0 }}
+              transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+              className="flex flex-col items-center gap-1"
             >
-              {activeLine.map((word, i) => (
-                <span
-                  key={`${activeLineIndex}-${i}`}
-                  className="inline-block mx-[2px] sm:mx-[3px] text-sm sm:text-base md:text-lg font-bold tracking-wide text-white"
-                >
-                  {word}
-                </span>
-              ))}
-            </motion.p>
-          </AnimatePresence>
-
-          {/* Next line preview */}
-          {nextLine.length > 0 && (
-            <AnimatePresence mode="wait">
-              <motion.p
-                key={`next-${activeLineIndex + 1}`}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 0.4 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.3 }}
-                className="text-center leading-snug whitespace-normal"
-              >
-                {nextLine.map((word, i) => (
+              {/* Active line */}
+              <p className="text-center leading-snug whitespace-normal">
+                {activeLine.map((word, i) => (
                   <span
-                    key={`next-${activeLineIndex + 1}-${i}`}
-                    className="inline-block mx-[2px] sm:mx-[3px] text-xs sm:text-sm font-medium tracking-wide text-white/60"
+                    key={`${activeLineIndex}-${i}`}
+                    className="inline-block mx-[2px] sm:mx-[3px] text-sm sm:text-base md:text-lg font-bold tracking-wide text-white"
                   >
                     {word}
                   </span>
                 ))}
-              </motion.p>
-            </AnimatePresence>
-          )}
+              </p>
+
+              {/* Next line preview — same size, reduced opacity */}
+              {nextLine.length > 0 && (
+                <p className="text-center leading-snug whitespace-normal">
+                  {nextLine.map((word, i) => (
+                    <span
+                      key={`next-${activeLineIndex + 1}-${i}`}
+                      className="inline-block mx-[2px] sm:mx-[3px] text-sm sm:text-base md:text-lg font-bold tracking-wide text-white/40"
+                    >
+                      {word}
+                    </span>
+                  ))}
+                </p>
+              )}
+            </motion.div>
+          </AnimatePresence>
 
           {/* Line progress bar — fills over 3s */}
           {isActive && (
