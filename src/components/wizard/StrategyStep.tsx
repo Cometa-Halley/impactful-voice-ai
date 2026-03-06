@@ -8,7 +8,7 @@ import { useVideoFlowStore } from '@/stores/videoFlowStore';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 24 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] } },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] as const } },
   exit: { opacity: 0, y: -16, transition: { duration: 0.3 } },
 };
 
