@@ -93,14 +93,15 @@ export interface GenerateScriptParams {
   answers: string[];
   format?: 'vertical' | 'horizontal';
   duration?: '30s' | '60s';
+  language?: string;
   onDelta: (text: string) => void;
   onDone: () => void;
 }
 
-export async function generateScript({ methodology, answers, format, duration, onDelta, onDone }: GenerateScriptParams) {
+export async function generateScript({ methodology, answers, format, duration, language, onDelta, onDone }: GenerateScriptParams) {
   return streamFromEdge({
     functionName: 'generate-script',
-    body: { methodology, answers, format, duration },
+    body: { methodology, answers, format, duration, language },
     onDelta,
     onDone,
   });
@@ -111,14 +112,15 @@ export interface RefineScriptParams {
   script: string;
   instruction: string;
   history?: Array<{ role: string; content: string }>;
+  language?: string;
   onDelta: (text: string) => void;
   onDone: () => void;
 }
 
-export async function refineScript({ methodology, script, instruction, history, onDelta, onDone }: RefineScriptParams) {
+export async function refineScript({ methodology, script, instruction, history, language, onDelta, onDone }: RefineScriptParams) {
   return streamFromEdge({
     functionName: 'refine-script',
-    body: { methodology, script, instruction, history },
+    body: { methodology, script, instruction, history, language },
     onDelta,
     onDone,
   });
@@ -127,14 +129,15 @@ export async function refineScript({ methodology, script, instruction, history, 
 export interface CoachingTipsParams {
   methodology: MethodologyKey;
   script: string;
+  language?: string;
   onDelta: (text: string) => void;
   onDone: () => void;
 }
 
-export async function getCoachingTips({ methodology, script, onDelta, onDone }: CoachingTipsParams) {
+export async function getCoachingTips({ methodology, script, language, onDelta, onDone }: CoachingTipsParams) {
   return streamFromEdge({
     functionName: 'coaching-tips',
-    body: { methodology, script },
+    body: { methodology, script, language },
     onDelta,
     onDone,
   });

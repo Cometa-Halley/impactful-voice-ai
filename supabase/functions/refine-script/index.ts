@@ -9,10 +9,12 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const { script, methodology, instruction, history } = await req.json();
+    const { script, methodology, instruction, history, language } = await req.json();
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
+
+    const langInstruction = language ? `\nIMPORTANT: You MUST generate your entire response and output in the following language code: ${language}` : '';
 
     const systemPrompt = `You are Presencia's Script Refiner. You help users improve their communication scripts through conversational refinement.
 
@@ -22,12 +24,11 @@ RULES:
 - You receive the current script and a user instruction for how to change it
 - Apply the requested change and return the FULL updated script
 - Maintain the same structure (Hook, Development, Call to Action) and stage directions in [brackets]
-- Respond in the same language as the script
 - Keep the methodology's tone and principles intact
 - If the user asks to shorten, actually cut content — don't just summarize
 - If the user asks for more emotion, add vivid language and sensory details
 - Only return the refined script, no explanations or preamble
-- If the instruction is a question or unclear, briefly clarify what you changed at the end after a "---" separator`;
+- If the instruction is a question or unclear, briefly clarify what you changed at the end after a "---" separator${langInstruction}`;
 
     const messages: Array<{role: string; content: string}> = [
       { role: "system", content: systemPrompt },

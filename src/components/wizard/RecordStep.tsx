@@ -9,6 +9,7 @@ import { useLightingDetection } from '@/hooks/useLightingDetection';
 import { useSpeechRecognition } from '@/hooks/useSpeechRecognition';
 import { useGestureDetection } from '@/hooks/useGestureDetection';
 import { cleanScriptForTeleprompter } from '@/lib/clean-script';
+import { getCoachingTips } from '@/lib/ai-service';
 import PreRecordingChecks from '@/components/recording/PreRecordingChecks';
 import RecordingControls from '@/components/recording/RecordingControls';
 import Teleprompter from '@/components/recording/Teleprompter';
@@ -23,8 +24,8 @@ interface Props {
 }
 
 export default function RecordStep({ onRecordingComplete, mediaDevices }: Props) {
-  const { t } = useTranslation();
-  const { script, videoFormat } = useVideoFlowStore();
+  const { t, i18n } = useTranslation();
+  const { script, videoFormat, methodology } = useVideoFlowStore();
   const { stream, videoRef, hasCamera, hasMicrophone, error, isLoading, startDevices } = mediaDevices;
 
   const [recordPhase, setRecordPhase] = useState<RecordPhase>('checks');
@@ -32,6 +33,11 @@ export default function RecordStep({ onRecordingComplete, mediaDevices }: Props)
   const [isPaused, setIsPaused] = useState(false);
   const [duration, setDuration] = useState(0);
   const [countdown, setCountdown] = useState(COUNTDOWN_SECONDS);
+
+  // Coaching tips state
+  const [tips, setTips] = useState('');
+  const [tipsLoading, setTipsLoading] = useState(false);
+  const tipsRequested = useRef(false);
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
@@ -45,6 +51,25 @@ export default function RecordStep({ onRecordingComplete, mediaDevices }: Props)
   const speechRecognition = useSpeechRecognition(words);
 
   const aspectClass = videoFormat === 'horizontal' ? 'aspect-video' : 'aspect-[9/16]';
+
+  // Fetch coaching tips once when entering ready phase
+  useEffect(() => {
+    if (recordPhase === 'ready' && methodology && script && !tipsRequested.current) {
+      tipsRequested.current = true;
+      setTipsLoading(true);
+      let accumulated = '';
+      getCoachingTips({
+        methodology,
+        script,
+        language: i18n.language,
+        onDelta: (text) => {
+          accumulated += text;
+          setTips(accumulated);
+        },
+        onDone: () => setTipsLoading(false),
+      }).catch(() => setTipsLoading(false));
+    }
+  }, [recordPhase, methodology, script, i18n.language]);
 
   const actuallyStartRecording = useCallback(() => {
     if (!stream) return;
@@ -132,8 +157,9 @@ export default function RecordStep({ onRecordingComplete, mediaDevices }: Props)
   }
 
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4">
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="relative space-y-4">
       <div className="grid gap-4 lg:grid-cols-5">
+        {/* Video preview */}
         <div className="lg:col-span-2 relative">
           <div className={`${aspectClass} max-h-[60vh] w-full max-w-full bg-black rounded-xl overflow-hidden relative`}>
             <video ref={videoRef} autoPlay muted playsInline className="absolute inset-0 w-full h-full object-cover" style={{ transform: 'scaleX(-1)' }} />
@@ -184,22 +210,49 @@ export default function RecordStep({ onRecordingComplete, mediaDevices }: Props)
             )}
           </div>
         </div>
-        <div className="lg:col-span-3 min-h-[300px] lg:min-h-0">
-          <Teleprompter script={cleanedScript} currentWordIndex={speechRecognition.currentWordIndex} isActive={isRecording} />
+
+        {/* Teleprompter + Tips */}
+        <div className="lg:col-span-3 flex flex-col gap-4">
+          <div className="min-h-[300px] lg:min-h-0 flex-1">
+            <Teleprompter script={cleanedScript} currentWordIndex={speechRecognition.currentWordIndex} isActive={isRecording} />
+          </div>
+
+          {/* Coaching tips — fixed height to prevent layout shift */}
+          <div className="min-h-[6rem] rounded-lg bg-muted/30 p-3">
+            <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
+              {t('recording.tips')}
+            </h3>
+            {tipsLoading && !tips && (
+              <div className="flex items-center gap-2 text-muted-foreground text-xs">
+                <Loader2 className="h-3 w-3 animate-spin" />
+                <span>{t('createVideo.generating')}</span>
+              </div>
+            )}
+            {tips && (
+              <div className="text-xs text-foreground/80 whitespace-pre-wrap leading-relaxed max-h-[10rem] overflow-y-auto">
+                {tips}
+              </div>
+            )}
+          </div>
         </div>
       </div>
-      {recordPhase !== 'countdown' && (
-        <RecordingControls
-          isRecording={isRecording}
-          isPaused={isPaused}
-          gestureReady={recordPhase === 'ready'}
-          onStart={handleStartRecording}
-          onStop={handleStopRecording}
-          onPause={handlePause}
-          onResume={handleResume}
-          duration={duration}
-        />
-      )}
+
+      {/* Recording controls — pinned at bottom to avoid layout shift */}
+      <div className="sticky bottom-0 z-30 bg-background/95 backdrop-blur py-3">
+        {recordPhase !== 'countdown' && (
+          <RecordingControls
+            isRecording={isRecording}
+            isPaused={isPaused}
+            gestureReady={recordPhase === 'ready'}
+            onStart={handleStartRecording}
+            onStop={handleStopRecording}
+            onPause={handlePause}
+            onResume={handleResume}
+            duration={duration}
+          />
+        )}
+      </div>
+
       {speechRecognition.isListening && (
         <div className="text-center">
           <p className="text-xs text-muted-foreground">{t('recording.listening')} <span className="text-foreground/70">{speechRecognition.transcript}</span></p>
