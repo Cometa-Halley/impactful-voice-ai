@@ -15,6 +15,8 @@ interface SpeechRecognitionEvent extends Event {
   resultIndex: number;
 }
 
+const SEARCH_WINDOW = 10;
+
 export function useSpeechRecognition(words: string[]): SpeechRecognitionHook {
   const [isListening, setIsListening] = useState(false);
   const [transcript, setTranscript] = useState('');
@@ -29,20 +31,38 @@ export function useSpeechRecognition(words: string[]): SpeechRecognitionHook {
   const normalizeWord = (w: string) =>
     w.toLowerCase().replace(/[^a-záéíóúüñ\w]/gi, '');
 
-  const matchWord = useCallback((spoken: string) => {
-    const spokenWords = spoken.trim().split(/\s+/).map(normalizeWord).filter(Boolean);
+  const fuzzyMatch = (spoken: string, script: string): boolean => {
+    if (!spoken || !script) return false;
+    if (spoken === script) return true;
+    if (script.startsWith(spoken) || spoken.startsWith(script)) return true;
+    // Tolerant inclusion for words > 3 chars
+    if (script.length > 3 && spoken.includes(script)) return true;
+    if (spoken.length > 3 && script.includes(spoken)) return true;
+    return false;
+  };
+
+  const matchWord = useCallback((spokenTranscript: string) => {
+    const spokenWords = spokenTranscript.trim().split(/\s+/).map(normalizeWord).filter(Boolean);
     if (!spokenWords.length) return;
 
     let idx = wordIndexRef.current;
-    for (const sw of spokenWords) {
-      for (let offset = 0; offset < 4 && idx + offset < words.length; offset++) {
+
+    // Process spoken words in REVERSE so we jump to the furthest match
+    for (let s = spokenWords.length - 1; s >= 0; s--) {
+      const sw = spokenWords[s];
+      const limit = Math.min(idx + SEARCH_WINDOW, words.length);
+      let found = false;
+      for (let offset = 0; idx + offset < limit; offset++) {
         const scriptWord = normalizeWord(words[idx + offset]);
-        if (scriptWord === sw || scriptWord.startsWith(sw) || sw.startsWith(scriptWord)) {
+        if (fuzzyMatch(sw, scriptWord)) {
           idx = idx + offset + 1;
+          found = true;
           break;
         }
       }
+      if (found) break; // We matched the latest spoken word, stop
     }
+
     if (idx !== wordIndexRef.current) {
       wordIndexRef.current = idx;
       setCurrentWordIndex(idx);
@@ -90,12 +110,17 @@ export function useSpeechRecognition(words: string[]): SpeechRecognitionHook {
     };
 
     recognitionRef.current = recognition;
-    wordIndexRef.current = 0;
-    setCurrentWordIndex(0);
+
+    // Resume: only reset index if we've reached the end
+    if (wordIndexRef.current >= words.length) {
+      wordIndexRef.current = 0;
+      setCurrentWordIndex(0);
+    }
+
     setTranscript('');
     recognition.start();
     setIsListening(true);
-  }, [isSupported, matchWord]);
+  }, [isSupported, matchWord, words.length]);
 
   const stop = useCallback(() => {
     if (recognitionRef.current) {
