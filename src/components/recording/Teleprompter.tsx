@@ -7,7 +7,25 @@ interface Props {
   isActive: boolean;
 }
 
-const LINE_DURATION_MS = 3000;
+const SYLLABLES_PER_1500MS = 9; // average natural speech pace
+
+/**
+ * Estimates Spanish/English syllable count by counting vowel clusters.
+ */
+function countSyllables(text: string): number {
+  const clean = text.toLowerCase().replace(/[^a-záéíóúüàèìòùâêîôûäëïöü]/g, ' ');
+  const matches = clean.match(/[aeiouyáéíóúüàèìòùâêîôûäëïöü]+/gi);
+  return matches ? matches.length : 1;
+}
+
+/**
+ * Returns duration in ms for a line based on its syllable count.
+ */
+function lineDurationMs(words: string[]): number {
+  const syllables = words.reduce((sum, w) => sum + countSyllables(w), 0);
+  const ms = (syllables / SYLLABLES_PER_1500MS) * 1500;
+  return Math.max(1500, Math.round(ms)); // minimum 1.5s
+}
 
 function splitIntoBreathLines(text: string, maxWords = 8, minWords = 3): string[][] {
   const words = text.split(/\s+/).filter(Boolean);
@@ -44,20 +62,27 @@ export default function Teleprompter({ script, currentWordIndex, isActive }: Pro
   const lines = useMemo(() => splitIntoBreathLines(script), [script]);
   const [timedLineIndex, setTimedLineIndex] = useState(0);
 
-  // Auto-advance every 3 seconds when active
+  const currentDuration = useMemo(
+    () => lines[timedLineIndex] ? lineDurationMs(lines[timedLineIndex]) : 2000,
+    [lines, timedLineIndex]
+  );
+
+  // Auto-advance based on syllable-calculated duration
   useEffect(() => {
     if (!isActive || lines.length === 0) return;
     setTimedLineIndex(0);
-
-    const interval = setInterval(() => {
-      setTimedLineIndex(prev => {
-        if (prev >= lines.length - 1) return prev;
-        return prev + 1;
-      });
-    }, LINE_DURATION_MS);
-
-    return () => clearInterval(interval);
   }, [isActive, lines.length]);
+
+  useEffect(() => {
+    if (!isActive || lines.length === 0) return;
+    if (timedLineIndex >= lines.length) return;
+
+    const timeout = setTimeout(() => {
+      setTimedLineIndex(prev => (prev >= lines.length - 1 ? prev : prev + 1));
+    }, lineDurationMs(lines[timedLineIndex]));
+
+    return () => clearTimeout(timeout);
+  }, [isActive, lines, timedLineIndex]);
 
   // Reset when not active
   useEffect(() => {
@@ -104,7 +129,7 @@ export default function Teleprompter({ script, currentWordIndex, isActive }: Pro
                 className="h-full rounded-full bg-gradient-to-r from-primary to-accent"
                 initial={{ width: '0%' }}
                 animate={{ width: '100%' }}
-                transition={{ duration: LINE_DURATION_MS / 1000, ease: 'linear' }}
+                transition={{ duration: currentDuration / 1000, ease: 'linear' }}
               />
             </div>
           )}
