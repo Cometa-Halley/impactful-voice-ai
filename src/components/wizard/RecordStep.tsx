@@ -157,11 +157,17 @@ export default function RecordStep({ onRecordingComplete, mediaDevices }: Props)
   }
 
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="relative space-y-4">
-      <div className="grid gap-4 lg:grid-cols-5">
-        {/* Video preview */}
-        <div className="lg:col-span-2 relative">
-          <div className={`${aspectClass} max-h-[60vh] w-full max-w-full bg-black rounded-xl overflow-hidden relative`}>
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="relative flex flex-col gap-4">
+      {/* TOP — Teleprompter (karaoke) */}
+      <div className="w-full">
+        <Teleprompter script={cleanedScript} currentWordIndex={speechRecognition.currentWordIndex} isActive={isRecording} />
+      </div>
+
+      {/* BOTTOM — Camera + Controls */}
+      <div className="flex flex-col items-center gap-4">
+        {/* Camera preview */}
+        <div className="relative w-full max-w-2xl mx-auto">
+          <div className={`${aspectClass} w-full bg-black rounded-xl overflow-hidden relative`}>
             <video ref={videoRef} autoPlay muted playsInline className="absolute inset-0 w-full h-full object-cover" style={{ transform: 'scaleX(-1)' }} />
 
             {/* Gesture detection overlay */}
@@ -211,33 +217,26 @@ export default function RecordStep({ onRecordingComplete, mediaDevices }: Props)
           </div>
         </div>
 
-        {/* Teleprompter + Tips */}
-        <div className="lg:col-span-3 flex flex-col gap-4">
-          <div className="min-h-[300px] lg:min-h-0 flex-1">
-            <Teleprompter script={cleanedScript} currentWordIndex={speechRecognition.currentWordIndex} isActive={isRecording} />
-          </div>
-
-          {/* Coaching tips — fixed height to prevent layout shift */}
-          <div className="min-h-[6rem] rounded-lg bg-muted/30 p-3">
-            <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
-              {t('recording.tips')}
-            </h3>
-            {tipsLoading && !tips && (
-              <div className="flex items-center gap-2 text-muted-foreground text-xs">
-                <Loader2 className="h-3 w-3 animate-spin" />
-                <span>{t('createVideo.generating')}</span>
-              </div>
-            )}
-            {tips && (
-              <div className="text-xs text-foreground/80 whitespace-pre-wrap leading-relaxed max-h-[10rem] overflow-y-auto">
-                {tips}
-              </div>
-            )}
-          </div>
+        {/* Coaching tips */}
+        <div className="w-full max-w-2xl mx-auto min-h-[4rem] rounded-lg bg-muted/30 p-3">
+          <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
+            {t('recording.tips')}
+          </h3>
+          {tipsLoading && !tips && (
+            <div className="flex items-center gap-2 text-muted-foreground text-xs">
+              <Loader2 className="h-3 w-3 animate-spin" />
+              <span>{t('createVideo.generating')}</span>
+            </div>
+          )}
+          {tips && (
+            <div className="text-xs text-foreground/80 whitespace-pre-wrap leading-relaxed max-h-[8rem] overflow-y-auto">
+              {tips}
+            </div>
+          )}
         </div>
       </div>
 
-      {/* Recording controls — pinned at bottom to avoid layout shift */}
+      {/* Recording controls — pinned at bottom */}
       <div className="sticky bottom-0 z-30 bg-background/95 backdrop-blur py-3">
         {recordPhase !== 'countdown' && (
           <RecordingControls
