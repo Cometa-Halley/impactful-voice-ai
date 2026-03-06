@@ -260,11 +260,9 @@
     "steps": {
       "format": "Formato",
       "strategy": "Estrategia",
-      "context": "Contexto",
-      "script": "Guion",
-      "refine": "Refinar",
+      "script": "Guion y Refinar",
       "record": "Grabar",
-      "validate": "Validar"
+      "validate": "Revisión"
     },
     "formatOrientation": "Orientación del vídeo",
     "formatOrientationDesc": "¿Cómo quieres grabar tu mensaje?",
