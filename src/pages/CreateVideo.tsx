@@ -132,16 +132,16 @@ const CreateVideo = () => {
     setCurrentStep(3);
 
     try {
-      await generateScript({
+      const result = await generateScript({
         methodology: selectedMethodology,
         answers,
         duration: videoDuration,
         format: videoFormat,
-        onDelta: (text) => setScript(prev => prev + text),
-        onDone: () => setIsGenerating(false),
       });
+      setScript(JSON.stringify(result));
     } catch (e: any) {
       toast.error(t('createVideo.failedGenerate'));
+    } finally {
       setIsGenerating(false);
     }
   }, [selectedMethodology, answers, videoFormat, videoDuration, t]);
