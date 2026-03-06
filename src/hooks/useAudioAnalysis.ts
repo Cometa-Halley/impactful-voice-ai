@@ -15,6 +15,9 @@ export function useAudioAnalysis(stream: MediaStream | null) {
   const analyserRef = useRef<AnalyserNode | null>(null);
   const rafRef = useRef<number>(0);
   const noiseHistoryRef = useRef<number[]>([]);
+  // Debounce: hold the "displayed" quality to avoid flickering
+  const debouncedQualityRef = useRef<AudioQuality['quality']>('silent');
+  const silenceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const analyze = useCallback(() => {
     if (!analyserRef.current) return;
@@ -39,12 +42,40 @@ export function useAudioAnalysis(stream: MediaStream | null) {
     if (history.length > 60) history.shift();
     const noiseFloor = Math.round(history.reduce((a, b) => a + b, 0) / history.length);
 
-    let quality: AudioQuality['quality'] = 'silent';
-    if (level > 5 && level < 70 && !clipping) quality = 'good';
-    else if (level >= 70 || clipping) quality = 'fair';
-    else if (level > 2) quality = 'poor';
+    // Compute raw quality
+    let rawQuality: AudioQuality['quality'] = 'silent';
+    if (level > 5 && level < 70 && !clipping) rawQuality = 'good';
+    else if (level >= 70 || clipping) rawQuality = 'fair';
+    else if (level > 2) rawQuality = 'poor';
 
-    setAudioQuality({ level, noiseFloor, quality, clipping });
+    // Debounce logic: upgrade immediately, downgrade after 2s
+    const isOptimal = rawQuality === 'good' || rawQuality === 'fair';
+    const wasOptimal = debouncedQualityRef.current === 'good' || debouncedQualityRef.current === 'fair';
+
+    if (isOptimal) {
+      // Immediately show good state & clear any pending downgrade
+      if (silenceTimerRef.current) {
+        clearTimeout(silenceTimerRef.current);
+        silenceTimerRef.current = null;
+      }
+      debouncedQualityRef.current = rawQuality;
+      setAudioQuality({ level, noiseFloor, quality: rawQuality, clipping });
+    } else if (wasOptimal) {
+      // Was optimal, now dropped — start 2s timer before downgrading
+      if (!silenceTimerRef.current) {
+        silenceTimerRef.current = setTimeout(() => {
+          debouncedQualityRef.current = rawQuality;
+          silenceTimerRef.current = null;
+        }, 2000);
+      }
+      // Keep showing the old optimal quality while timer is pending
+      setAudioQuality({ level, noiseFloor, quality: debouncedQualityRef.current, clipping });
+    } else {
+      // Was already non-optimal — update freely
+      debouncedQualityRef.current = rawQuality;
+      setAudioQuality({ level, noiseFloor, quality: rawQuality, clipping });
+    }
+
     rafRef.current = requestAnimationFrame(analyze);
   }, []);
 
@@ -62,11 +93,13 @@ export function useAudioAnalysis(stream: MediaStream | null) {
     contextRef.current = ctx;
     analyserRef.current = analyser;
     noiseHistoryRef.current = [];
+    debouncedQualityRef.current = 'silent';
 
     rafRef.current = requestAnimationFrame(analyze);
 
     return () => {
       cancelAnimationFrame(rafRef.current);
+      if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
       ctx.close();
     };
   }, [stream, analyze]);
