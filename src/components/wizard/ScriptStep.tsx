@@ -68,7 +68,7 @@ export default function ScriptStep() {
 
   return (
     <motion.div key="step-script" initial="hidden" animate="visible" exit="exit" variants={fadeUp}>
-      <div className="grid gap-6 lg:grid-cols-2 min-h-[60vh]">
+      <div className="grid gap-6 lg:grid-cols-2 min-h-[60vh] items-start">
         {/* Left: Script document */}
         <div className="space-y-4">
           <div>
