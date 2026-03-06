@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -16,6 +17,7 @@ interface Props {
   onStartDevices: () => void;
   onContinue: () => void;
   videoRef: React.RefObject<HTMLVideoElement>;
+  stream?: MediaStream | null;
 }
 
 const StatusIcon = ({ status }: { status: 'good' | 'fair' | 'poor' | 'silent' | boolean }) => {
@@ -40,13 +42,28 @@ const StatusBadge = ({ status }: { status: string }) => {
 
 export default function PreRecordingChecks({
   hasCamera, hasMicrophone, audioQuality, lightingQuality,
-  isLoading, onStartDevices, onContinue, videoRef,
+  isLoading, onStartDevices, onContinue, videoRef, stream,
 }: Props) {
   const { t } = useTranslation();
+
+  // Re-attach stream to video element when component mounts / ref becomes available
+  useEffect(() => {
+    if (videoRef.current && stream) {
+      videoRef.current.srcObject = stream;
+    }
+  }, [videoRef, stream, hasCamera]);
 
   const allGood = hasCamera && hasMicrophone &&
     (audioQuality.quality === 'good' || audioQuality.quality === 'fair') &&
     (lightingQuality.quality === 'good' || lightingQuality.quality === 'fair');
+
+  const tips: string[] = [];
+  if (lightingQuality.brightness < 80) tips.push(t('recording.tipBrighter'));
+  if (lightingQuality.brightness > 200) tips.push(t('recording.tipReduceBright'));
+  if (lightingQuality.visualNoise > 40) tips.push(t('recording.tipKeepStill'));
+  if (audioQuality.quality === 'poor') tips.push(t('recording.tipSpeakLouder'));
+  if (audioQuality.clipping) tips.push(t('recording.tipMoveAway'));
+  if (audioQuality.noiseFloor > 40) tips.push(t('recording.tipReduceNoise'));
 
   if (!hasCamera && !isLoading) {
     return (
@@ -55,14 +72,12 @@ export default function PreRecordingChecks({
           <Camera className="h-10 w-10 text-muted-foreground" />
         </div>
         <div className="text-center space-y-2">
-          <h2 className="text-xl font-semibold text-foreground">Camera & Microphone Access</h2>
-          <p className="text-sm text-muted-foreground max-w-md">
-            We need access to your camera and microphone to check your recording environment.
-          </p>
+          <h2 className="text-xl font-semibold text-foreground">{t('recording.cameraAccess')}</h2>
+          <p className="text-sm text-muted-foreground max-w-md">{t('recording.cameraAccessDesc')}</p>
         </div>
         <Button onClick={onStartDevices} className="glow-gold font-semibold" disabled={isLoading}>
           {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Camera className="mr-2 h-4 w-4" />}
-          Enable Camera & Mic
+          {t('recording.enableCameraMic')}
         </Button>
       </motion.div>
     );
@@ -80,7 +95,7 @@ export default function PreRecordingChecks({
                 autoPlay
                 muted
                 playsInline
-                className="absolute inset-0 w-full h-full object-cover mirror"
+                className="absolute inset-0 w-full h-full object-cover"
                 style={{ transform: 'scaleX(-1)' }}
               />
               {!hasCamera && (
@@ -92,73 +107,69 @@ export default function PreRecordingChecks({
           </CardContent>
         </Card>
 
-        {/* Checks panel — fixed height to prevent layout jumps */}
+        {/* Checks panel */}
         <div className="space-y-3 min-h-[360px]">
-          {/* Camera */}
           <Card className="gradient-card border-border">
             <CardContent className="flex items-center gap-3 py-4 h-[56px]">
               <StatusIcon status={hasCamera} />
               <Camera className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm font-medium text-foreground flex-1">Camera</span>
+              <span className="text-sm font-medium text-foreground flex-1">{t('recording.camera')}</span>
               <StatusBadge status={hasCamera ? 'good' : 'poor'} />
             </CardContent>
           </Card>
 
-          {/* Microphone */}
           <Card className="gradient-card border-border">
             <CardContent className="flex items-center gap-3 py-4 h-[56px]">
               <StatusIcon status={hasMicrophone} />
               <Mic className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm font-medium text-foreground flex-1">Microphone</span>
+              <span className="text-sm font-medium text-foreground flex-1">{t('recording.microphone')}</span>
               <StatusBadge status={hasMicrophone ? 'good' : 'poor'} />
             </CardContent>
           </Card>
 
-          {/* Audio quality */}
           <Card className="gradient-card border-border">
             <CardContent className="py-4 h-[110px]">
               <div className="flex items-center gap-3">
                 <StatusIcon status={audioQuality.quality} />
                 <Waves className="h-4 w-4 text-muted-foreground" />
-                <span className="text-sm font-medium text-foreground flex-1">Audio Quality</span>
+                <span className="text-sm font-medium text-foreground flex-1">{t('recording.audioQuality')}</span>
                 <StatusBadge status={audioQuality.quality} />
               </div>
               <div className="ml-8 space-y-1 mt-2">
                 <div className="flex items-center gap-2">
-                  <span className="text-xs text-muted-foreground w-16">Level</span>
+                  <span className="text-xs text-muted-foreground w-16">{t('recording.level')}</span>
                   <Progress value={audioQuality.level} className="h-1.5 flex-1" />
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="text-xs text-muted-foreground w-16">Noise</span>
+                  <span className="text-xs text-muted-foreground w-16">{t('recording.noise')}</span>
                   <Progress value={audioQuality.noiseFloor} className="h-1.5 flex-1" />
                 </div>
                 {audioQuality.clipping && (
-                  <p className="text-xs text-destructive">Audio clipping detected — move back from mic</p>
+                  <p className="text-xs text-destructive">{t('recording.clippingDetected')}</p>
                 )}
               </div>
             </CardContent>
           </Card>
 
-          {/* Lighting */}
           <Card className="gradient-card border-border">
             <CardContent className="py-4 h-[120px]">
               <div className="flex items-center gap-3">
                 <StatusIcon status={lightingQuality.quality} />
                 <Sun className="h-4 w-4 text-muted-foreground" />
-                <span className="text-sm font-medium text-foreground flex-1">Lighting</span>
+                <span className="text-sm font-medium text-foreground flex-1">{t('recording.lighting')}</span>
                 <StatusBadge status={lightingQuality.quality} />
               </div>
               <div className="ml-8 space-y-1 mt-2">
                 <div className="flex items-center gap-2">
-                  <span className="text-xs text-muted-foreground w-16">Bright</span>
+                  <span className="text-xs text-muted-foreground w-16">{t('recording.bright')}</span>
                   <Progress value={Math.round((lightingQuality.brightness / 255) * 100)} className="h-1.5 flex-1" />
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="text-xs text-muted-foreground w-16">Contrast</span>
+                  <span className="text-xs text-muted-foreground w-16">{t('recording.contrast')}</span>
                   <Progress value={lightingQuality.contrast} className="h-1.5 flex-1" />
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="text-xs text-muted-foreground w-16">Noise</span>
+                  <span className="text-xs text-muted-foreground w-16">{t('recording.noise')}</span>
                   <Progress value={lightingQuality.visualNoise} className="h-1.5 flex-1" />
                 </div>
               </div>
@@ -167,30 +178,27 @@ export default function PreRecordingChecks({
         </div>
       </div>
 
-      {/* Tips — shown as warnings, never blocking */}
-      {!allGood && (
+      {/* Tips — fixed height, scrollable */}
+      {tips.length > 0 && (
         <Card className="gradient-card border-primary/20">
-          <CardContent className="py-4">
+          <CardContent className="py-4 h-[120px] overflow-hidden">
             <div className="flex items-center gap-2 mb-2">
               <AlertTriangle className="h-4 w-4 text-primary" />
-              <h3 className="text-sm font-semibold text-foreground">Tips to improve</h3>
+              <h3 className="text-sm font-semibold text-foreground">{t('recording.tipsToImprove')}</h3>
             </div>
-            <ul className="text-xs text-muted-foreground space-y-1">
-              {lightingQuality.brightness < 80 && <li>• Move to a brighter area or add a light source in front of you</li>}
-              {lightingQuality.brightness > 200 && <li>• Reduce brightness — avoid direct light behind you</li>}
-              {lightingQuality.visualNoise > 40 && <li>• Keep still and reduce background movement</li>}
-              {audioQuality.quality === 'poor' && <li>• Speak louder or move closer to the microphone</li>}
-              {audioQuality.clipping && <li>• Move away from the microphone to avoid distortion</li>}
-              {audioQuality.noiseFloor > 40 && <li>• Reduce ambient noise — close windows, turn off fans</li>}
+            <ul className="text-xs text-muted-foreground space-y-1 max-h-[68px] overflow-y-auto">
+              {tips.map((tip, i) => (
+                <li key={i}>• {tip}</li>
+              ))}
             </ul>
           </CardContent>
         </Card>
       )}
 
-      {/* Continue button — NEVER disabled */}
+      {/* Continue button */}
       <div className="flex justify-end pt-2">
         <Button onClick={onContinue} className="glow-gold font-semibold">
-          Start Recording <ArrowRight className="ml-2 h-4 w-4" />
+          {t('recording.startRecording')} <ArrowRight className="ml-2 h-4 w-4" />
         </Button>
       </div>
     </motion.div>
