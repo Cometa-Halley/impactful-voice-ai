@@ -83,21 +83,13 @@ export default function Teleprompter({ script, currentWordIndex, isActive }: Pro
                 const isPast = globalIdx < currentWordIndex;
                 const isCurrent = globalIdx === currentWordIndex;
 
-                return (
-                  <motion.span
-                    key={`${activeLineIndex}-${i}`}
-                    animate={{
-                      scale: isCurrent ? 1.06 : 1,
-                    }}
-                    transition={{ duration: 0.22, ease: 'easeOut' }}
-                    className={`inline-block mx-[2px] sm:mx-[3px] text-sm sm:text-base md:text-lg font-bold tracking-wide ${
-                      isCurrent
-                        ? 'text-primary drop-shadow-[0_0_12px_hsl(var(--primary)/0.85)]'
-                        : 'text-white/90'
-                    }`}
-                  >
-                    {word}
-                  </motion.span>
+                  return (
+                    <span
+                      key={`${activeLineIndex}-${i}`}
+                      className="inline-block mx-[2px] sm:mx-[3px] text-sm sm:text-base md:text-lg font-bold tracking-wide text-white"
+                    >
+                      {word}
+                    </span>
                 );
               })}
             </motion.p>
