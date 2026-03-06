@@ -166,17 +166,17 @@ export default function RecordStep({ onRecordingComplete, mediaDevices }: Props)
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="relative flex flex-col gap-4">
-      {/* TOP — Teleprompter (karaoke) */}
-      <div className="w-full">
-        <Teleprompter script={cleanedScript} currentWordIndex={speechRecognition.currentWordIndex} isActive={isRecording} />
-      </div>
-
-      {/* BOTTOM — Camera + Controls */}
+      {/* Camera + Controls */}
       <div className="flex flex-col items-center gap-4">
         {/* Camera preview */}
         <div className="relative w-full max-w-2xl mx-auto">
           <div className={`${aspectClass} w-full bg-black rounded-xl overflow-hidden relative`}>
             <video ref={videoRef} autoPlay muted playsInline className="absolute inset-0 w-full h-full object-cover" style={{ transform: 'scaleX(-1)' }} />
+
+            {/* Teleprompter overlay — top of camera */}
+            <div className="absolute top-0 left-0 right-0 z-20">
+              <Teleprompter script={cleanedScript} currentWordIndex={speechRecognition.currentWordIndex} isActive={isRecording} />
+            </div>
 
             {/* Gesture detection overlay */}
             {recordPhase === 'ready' && (
