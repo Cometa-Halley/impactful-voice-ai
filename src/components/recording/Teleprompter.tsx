@@ -25,17 +25,19 @@ export default function Teleprompter({ script, currentWordIndex, isActive }: Pro
   }, [currentWordIndex]);
 
   return (
-    <div className="relative w-full overflow-hidden rounded-xl bg-black/90 backdrop-blur-lg border border-border">
-      {/* Gradient overlays for fade effect */}
-      <div className="absolute top-0 left-0 right-0 h-10 bg-gradient-to-b from-black/90 to-transparent z-10 pointer-events-none" />
-      <div className="absolute bottom-0 left-0 right-0 h-10 bg-gradient-to-t from-black/90 to-transparent z-10 pointer-events-none" />
+    <div className="relative w-full overflow-hidden">
+      {/* Blurred gradient background — fades into camera */}
+      <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/40 to-transparent backdrop-blur-sm pointer-events-none" />
+
+      {/* Bottom fade edge */}
+      <div className="absolute bottom-0 left-0 right-0 h-6 bg-gradient-to-t from-transparent to-transparent pointer-events-none z-10" />
 
       <div
         ref={containerRef}
-        className="px-6 py-12 overflow-y-auto max-h-[30vh] scrollbar-hide"
+        className="relative z-[5] px-4 py-6 overflow-y-auto max-h-[18vh] scrollbar-hide"
         style={{ scrollbarWidth: 'none' }}
       >
-        <div className="flex flex-wrap justify-center gap-x-2 gap-y-2 leading-relaxed">
+        <div className="flex flex-wrap justify-center gap-x-1.5 gap-y-1 leading-relaxed">
           {words.map((word, i) => {
             const isPast = i < currentWordIndex;
             const isCurrent = i === currentWordIndex;
@@ -44,12 +46,12 @@ export default function Teleprompter({ script, currentWordIndex, isActive }: Pro
               <span
                 key={i}
                 ref={isCurrent ? currentWordRef : undefined}
-                className={`text-xl md:text-2xl font-semibold transition-all duration-200 ${
+                className={`text-lg md:text-xl font-bold transition-all duration-200 ${
                   isCurrent
-                    ? 'text-primary scale-110 drop-shadow-[0_0_12px_hsl(var(--primary)/0.6)]'
+                    ? 'text-primary scale-110 drop-shadow-[0_0_12px_hsl(var(--primary)/0.7)]'
                     : isPast
-                      ? 'text-foreground/30'
-                      : 'text-foreground/80'
+                      ? 'text-primary/30'
+                      : 'text-white/70'
                 }`}
               >
                 {word}
@@ -61,7 +63,7 @@ export default function Teleprompter({ script, currentWordIndex, isActive }: Pro
 
       {/* Progress bar */}
       {isActive && (
-        <div className="absolute bottom-0 left-0 right-0 h-1 bg-muted z-20">
+        <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-white/10 z-20">
           <motion.div
             className="h-full bg-primary"
             animate={{ width: `${(currentWordIndex / Math.max(words.length, 1)) * 100}%` }}
