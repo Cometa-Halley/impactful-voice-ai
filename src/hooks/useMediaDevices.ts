@@ -30,10 +30,6 @@ export function useMediaDevices(): MediaDevicesState {
       setStream(mediaStream);
       setHasCamera(mediaStream.getVideoTracks().length > 0);
       setHasMicrophone(mediaStream.getAudioTracks().length > 0);
-
-      if (videoRef.current) {
-        videoRef.current.srcObject = mediaStream;
-      }
     } catch (err: any) {
       if (err.name === 'NotAllowedError') {
         setError('Camera/microphone access denied. Please allow access in your browser settings.');
@@ -53,6 +49,13 @@ export function useMediaDevices(): MediaDevicesState {
       setStream(null);
       setHasCamera(false);
       setHasMicrophone(false);
+    }
+  }, [stream]);
+
+  // Sync stream to video element whenever either changes
+  useEffect(() => {
+    if (videoRef.current && stream) {
+      videoRef.current.srcObject = stream;
     }
   }, [stream]);
 
