@@ -8,9 +8,6 @@ import { motion } from 'framer-motion';
 import { useVideoFlowStore } from '@/stores/videoFlowStore';
 import { refineScript } from '@/lib/ai-service';
 import { formatScriptForDisplay } from '@/lib/clean-script';
-import { motion } from 'framer-motion';
-import { useVideoFlowStore } from '@/stores/videoFlowStore';
-import { refineScript } from '@/lib/ai-service';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 24 },
