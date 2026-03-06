@@ -83,7 +83,7 @@ export default function PreRecordingChecks({
         {/* Camera preview with rule-of-thirds grid */}
         <Card className="gradient-card border-border overflow-hidden">
           <CardContent className="p-0">
-            <div className="relative aspect-video bg-black rounded-t-lg overflow-hidden">
+            <div className="relative aspect-video bg-black overflow-hidden flex items-center justify-center">
               <video
                 ref={videoRef}
                 autoPlay
