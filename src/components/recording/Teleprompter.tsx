@@ -39,20 +39,17 @@ export default function Teleprompter({ script, currentWordIndex, isActive }: Pro
           {words.map((word, i) => {
             const isPast = i < currentWordIndex;
             const isCurrent = i === currentWordIndex;
-            const isStageDirection = word.startsWith('[') || word.endsWith(']');
 
             return (
               <span
                 key={i}
                 ref={isCurrent ? currentWordRef : undefined}
                 className={`text-xl md:text-2xl font-semibold transition-all duration-200 ${
-                  isStageDirection
-                    ? 'text-accent/60 italic text-base md:text-lg'
-                    : isCurrent
-                      ? 'text-primary scale-110 drop-shadow-[0_0_12px_hsl(var(--primary)/0.6)]'
-                      : isPast
-                        ? 'text-foreground/30'
-                        : 'text-foreground/80'
+                  isCurrent
+                    ? 'text-primary scale-110 drop-shadow-[0_0_12px_hsl(var(--primary)/0.6)]'
+                    : isPast
+                      ? 'text-foreground/30'
+                      : 'text-foreground/80'
                 }`}
               >
                 {word}

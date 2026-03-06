@@ -77,24 +77,35 @@ serve(async (req) => {
     const methodologyPrompt = METHODOLOGY_PROMPTS[methodology];
     if (!methodologyPrompt) throw new Error(`Unknown methodology: ${methodology}`);
 
-    const langInstruction = language ? `\nIMPORTANT: You MUST generate your entire response and output in the following language code: ${language}. This includes ALL section titles, headers, stage directions, and labels — everything must be in that language. Do NOT leave any section name in English.` : '';
+    const langInstruction = language
+      ? `\nIMPORTANT: You MUST generate your entire response in the following language code: ${language}. ALL text (directions and dialogue) must be in that language.`
+      : '';
 
     const systemPrompt = `${methodologyPrompt}
 
 Format: ${format || 'vertical'} video
 Duration: ${duration || '60s'}
 
-IMPORTANT RULES:
-- Generate a complete, ready-to-read script — not an outline
-- Adapt length to fit the specified duration (${duration || '60s'} of natural speaking)
-- Include stage directions in [brackets] for pauses, emphasis, and energy shifts
-- Never break character or mention the methodology by name in the script${langInstruction}`;
+CRITICAL OUTPUT RULES:
+- You MUST return ONLY a valid JSON object. No markdown, no code fences, no extra text.
+- The JSON must follow this EXACT structure:
+{
+  "title": "Title of the video",
+  "segments": [
+    { "type": "direction", "text": "Stage direction or tone indicator" },
+    { "type": "dialogue", "text": "Exact spoken text the user should read aloud" }
+  ]
+}
+- Use "direction" segments for stage cues (pauses, energy, tone, camera instructions).
+- Use "dialogue" segments for the ACTUAL words the user will speak on camera.
+- Adapt the total dialogue length to fit ${duration || '60s'} of natural speaking.
+- Never include brackets, asterisks, or markdown formatting inside any segment text.${langInstruction}`;
 
     const userMessage = `Here are my answers to the methodology questions:
 
 ${answers.map((a: string, i: number) => `Q${i + 1}: ${a}`).join('\n\n')}
 
-Generate my complete script now.`;
+Generate my complete script now as a JSON object.`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -108,7 +119,7 @@ Generate my complete script now.`;
           { role: "system", content: systemPrompt },
           { role: "user", content: userMessage },
         ],
-        stream: true,
+        stream: false,
       }),
     });
 
@@ -128,8 +139,23 @@ Generate my complete script now.`;
       throw new Error(`AI gateway error: ${response.status}`);
     }
 
-    return new Response(response.body, {
-      headers: { ...corsHeaders, "Content-Type": "text/event-stream" },
+    const data = await response.json();
+    const rawContent = data.choices?.[0]?.message?.content ?? "";
+
+    // Strip markdown fences if present
+    let jsonStr = rawContent.trim();
+    if (jsonStr.startsWith("```")) {
+      jsonStr = jsonStr.replace(/^```(?:json)?\s*/i, "").replace(/```\s*$/, "").trim();
+    }
+
+    // Parse and validate
+    const parsed = JSON.parse(jsonStr);
+    if (!parsed.segments || !Array.isArray(parsed.segments)) {
+      throw new Error("AI returned invalid structure: missing segments array");
+    }
+
+    return new Response(JSON.stringify(parsed), {
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (e) {
     console.error("generate-script error:", e);
