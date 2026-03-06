@@ -77,7 +77,7 @@ serve(async (req) => {
     const methodologyPrompt = METHODOLOGY_PROMPTS[methodology];
     if (!methodologyPrompt) throw new Error(`Unknown methodology: ${methodology}`);
 
-    const langInstruction = language ? `\nIMPORTANT: You MUST generate your entire response and output in the following language code: ${language}` : '';
+    const langInstruction = language ? `\nIMPORTANT: You MUST generate your entire response and output in the following language code: ${language}. This includes ALL section titles, headers, stage directions, and labels — everything must be in that language. Do NOT leave any section name in English.` : '';
 
     const systemPrompt = `${methodologyPrompt}
 

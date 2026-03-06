@@ -261,7 +261,7 @@
     "steps": {
       "format": "Format",
       "strategy": "Strategy",
-      "script": "Script & Refine",
+      "script": "Script",
       "record": "Record",
       "validate": "Review"
     },
