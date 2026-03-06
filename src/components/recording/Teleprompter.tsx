@@ -7,24 +7,18 @@ interface Props {
   isActive: boolean;
 }
 
-const SYLLABLES_PER_1500MS = 9; // average natural speech pace
+const SYLLABLES_PER_2S = 9; // 9 syllables every 2 seconds
 
-/**
- * Estimates Spanish/English syllable count by counting vowel clusters.
- */
 function countSyllables(text: string): number {
   const clean = text.toLowerCase().replace(/[^a-záéíóúüàèìòùâêîôûäëïöü]/g, ' ');
   const matches = clean.match(/[aeiouyáéíóúüàèìòùâêîôûäëïöü]+/gi);
   return matches ? matches.length : 1;
 }
 
-/**
- * Returns duration in ms for a line based on its syllable count.
- */
 function lineDurationMs(words: string[]): number {
   const syllables = words.reduce((sum, w) => sum + countSyllables(w), 0);
-  const ms = (syllables / SYLLABLES_PER_1500MS) * 1500;
-  return Math.max(1500, Math.round(ms)); // minimum 1.5s
+  const ms = (syllables / SYLLABLES_PER_2S) * 2000;
+  return Math.max(2000, Math.round(ms));
 }
 
 function splitIntoBreathLines(text: string, maxWords = 8, minWords = 3): string[][] {
