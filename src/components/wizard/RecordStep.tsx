@@ -152,6 +152,7 @@ export default function RecordStep({ onRecordingComplete, mediaDevices }: Props)
         onStartDevices={startDevices}
         onContinue={() => setRecordPhase('ready')}
         videoRef={videoRef}
+        stream={stream}
       />
     );
   }
