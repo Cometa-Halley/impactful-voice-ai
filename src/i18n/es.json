@@ -247,7 +247,9 @@
     "tipSpeakLouder": "Habla más fuerte o acércate al micrófono",
     "tipMoveAway": "Aléjate del micrófono para evitar distorsión",
     "tipReduceNoise": "Reduce el ruido ambiental — cierra ventanas, apaga ventiladores",
-    "startRecording": "Iniciar Grabación"
+    "startRecording": "Iniciar Grabación",
+    "audioOk": "Los niveles de audio se ven bien",
+    "lightingOk": "La iluminación se ve bien"
   },
   "analysis": {
     "scoreBreakdown": "Desglose de Puntuación",

@@ -247,7 +247,9 @@
     "tipSpeakLouder": "Speak louder or move closer to the microphone",
     "tipMoveAway": "Move away from the microphone to avoid distortion",
     "tipReduceNoise": "Reduce ambient noise — close windows, turn off fans",
-    "startRecording": "Start Recording"
+    "startRecording": "Start Recording",
+    "audioOk": "Audio levels look good",
+    "lightingOk": "Lighting looks good"
   },
   "analysis": {
     "scoreBreakdown": "Score Breakdown",
