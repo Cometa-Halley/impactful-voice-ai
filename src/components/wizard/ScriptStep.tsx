@@ -1,6 +1,6 @@
 import { useRef, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Loader2, Send, Sparkles } from 'lucide-react';
@@ -20,7 +20,7 @@ const QUICK_REFINEMENT_KEYS = [
 ] as const;
 
 export default function ScriptStep() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const {
     script, isGenerating, isRefining, chatMessages, methodology,
     setScript, setIsRefining, addChatMessage, updateLastAssistantMessage,
@@ -51,6 +51,7 @@ export default function ScriptStep() {
         script,
         instruction,
         history: chatMessages,
+        language: i18n.language,
         onDelta: (text) => {
           refined += text;
           updateLastAssistantMessage(refined);
@@ -63,7 +64,7 @@ export default function ScriptStep() {
     } catch {
       setIsRefining(false);
     }
-  }, [methodology, script, chatMessages, isRefining, addChatMessage, updateLastAssistantMessage, setScript, setIsRefining]);
+  }, [methodology, script, chatMessages, isRefining, addChatMessage, updateLastAssistantMessage, setScript, setIsRefining, i18n.language]);
 
   return (
     <motion.div key="step-script" initial="hidden" animate="visible" exit="exit" variants={fadeUp}>
@@ -94,8 +95,8 @@ export default function ScriptStep() {
           </Card>
         </div>
 
-        {/* Right: Chat refinement */}
-        <div className="space-y-4 flex flex-col">
+        {/* Right: Chat refinement — highlighted */}
+        <div className="space-y-4 flex flex-col rounded-2xl border-2 border-primary p-4 shadow-[0_0_20px_hsl(var(--primary)/0.15)]">
           <div>
             <h2 className="text-lg font-semibold text-foreground">{t('createVideo.refineWithAI')}</h2>
             <p className="text-sm text-muted-foreground mt-1">{t('createVideo.refineDesc')}</p>

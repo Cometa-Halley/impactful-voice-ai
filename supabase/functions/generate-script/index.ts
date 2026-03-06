@@ -69,13 +69,15 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const { methodology, answers, format, duration } = await req.json();
+    const { methodology, answers, format, duration, language } = await req.json();
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
     const methodologyPrompt = METHODOLOGY_PROMPTS[methodology];
     if (!methodologyPrompt) throw new Error(`Unknown methodology: ${methodology}`);
+
+    const langInstruction = language ? `\nIMPORTANT: You MUST generate your entire response and output in the following language code: ${language}` : '';
 
     const systemPrompt = `${methodologyPrompt}
 
@@ -84,10 +86,9 @@ Duration: ${duration || '60s'}
 
 IMPORTANT RULES:
 - Generate a complete, ready-to-read script — not an outline
-- Write in the same language the user used in their answers
 - Adapt length to fit the specified duration (${duration || '60s'} of natural speaking)
 - Include stage directions in [brackets] for pauses, emphasis, and energy shifts
-- Never break character or mention the methodology by name in the script`;
+- Never break character or mention the methodology by name in the script${langInstruction}`;
 
     const userMessage = `Here are my answers to the methodology questions:
 

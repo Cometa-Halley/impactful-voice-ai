@@ -47,7 +47,7 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const { methodology, script } = await req.json();
+    const { methodology, script, language } = await req.json();
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
@@ -55,14 +55,15 @@ serve(async (req) => {
     const coachPrompt = COACHING_PROMPTS[methodology];
     if (!coachPrompt) throw new Error(`Unknown methodology: ${methodology}`);
 
+    const langInstruction = language ? `\nIMPORTANT: You MUST generate your entire response and output in the following language code: ${language}` : '';
+
     const systemPrompt = `${coachPrompt}
 
 IMPORTANT RULES:
-- Respond in the same language as the script
 - Be encouraging but specific — no generic advice
 - Reference specific parts of THEIR script in your coaching tips
 - Keep it concise: 5-7 actionable tips, each 1-2 sentences
-- Format as a numbered list`;
+- Format as a numbered list${langInstruction}`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",

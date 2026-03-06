@@ -1,4 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
+import i18nInstance from '@/i18n';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import AppLayout from '@/components/AppLayout';
@@ -68,6 +69,7 @@ const VideoCreatorWizard = () => {
     }
   };
 
+
   const handleGenerateScript = useCallback(async () => {
     if (!methodology || !videoFormat || !videoDuration) return;
     setIsGenerating(true);
@@ -80,6 +82,7 @@ const VideoCreatorWizard = () => {
         answers,
         duration: videoDuration,
         format: videoFormat,
+        language: i18nInstance.language,
         onDelta: (text) => appendScript(text),
         onDone: () => setIsGenerating(false),
       });

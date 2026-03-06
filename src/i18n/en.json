@@ -226,7 +226,8 @@
     "waveToStart": "Wave to start",
     "orPress": "or press the button",
     "listening": "Listening...",
-    "speechNotSupported": "Speech recognition not supported in this browser. Teleprompter will scroll manually."
+    "speechNotSupported": "Speech recognition not supported in this browser. Teleprompter will scroll manually.",
+    "tips": "Tips"
   },
   "analysis": {
     "scoreBreakdown": "Score Breakdown",
