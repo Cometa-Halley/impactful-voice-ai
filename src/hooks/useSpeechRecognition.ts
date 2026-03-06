@@ -16,21 +16,29 @@ interface SpeechRecognitionEvent extends Event {
 }
 
 const SEARCH_WINDOW = 15;
+/** Seconds of silence before fallback auto-advances one word */
+const SILENCE_TIMEOUT_S = 3.5;
+/** Seconds for initial grace period (user may need time to start reading) */
+const INITIAL_GRACE_S = 5;
 
 export function useSpeechRecognition(words: string[]): SpeechRecognitionHook {
   const [isListening, setIsListening] = useState(false);
   const [transcript, setTranscript] = useState('');
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
   const [error, setError] = useState<string | null>(null);
+
   const recognitionRef = useRef<any>(null);
   const wordIndexRef = useRef(0);
+  const lastAdvanceTime = useRef(0);
+  const fallbackTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const speechAvailable = useRef(true); // tracks whether speech recognition is working
 
   const isSupported = typeof window !== 'undefined' &&
     ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window);
 
   const normalizeWord = (w: string) =>
     w.toLowerCase()
-      .normalize('NFD').replace(/[\u0300-\u036f]/g, '') // strip accents for comparison
+      .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
       .replace(/[^a-z0-9]/gi, '');
 
   const fuzzyMatch = (spoken: string, script: string): boolean => {
@@ -39,7 +47,6 @@ export function useSpeechRecognition(words: string[]): SpeechRecognitionHook {
     if (script.startsWith(spoken) || spoken.startsWith(script)) return true;
     if (script.length > 2 && spoken.includes(script)) return true;
     if (spoken.length > 2 && script.includes(spoken)) return true;
-    // Levenshtein-lite: allow 1 char difference for words > 4 chars
     if (spoken.length > 4 && script.length > 4 && Math.abs(spoken.length - script.length) <= 2) {
       let mismatches = 0;
       const minLen = Math.min(spoken.length, script.length);
@@ -52,15 +59,22 @@ export function useSpeechRecognition(words: string[]): SpeechRecognitionHook {
     return false;
   };
 
+  const advanceTo = useCallback((idx: number) => {
+    if (idx > wordIndexRef.current && idx <= words.length) {
+      wordIndexRef.current = idx;
+      lastAdvanceTime.current = Date.now();
+      setCurrentWordIndex(idx);
+    }
+  }, [words.length]);
+
   const matchWord = useCallback((spokenTranscript: string) => {
     const spokenWords = spokenTranscript.trim().split(/\s+/).map(normalizeWord).filter(Boolean);
     if (!spokenWords.length) return;
 
     let bestIdx = wordIndexRef.current;
 
-    // Try each spoken word (forward) to advance the cursor as far as possible
     for (const sw of spokenWords) {
-      if (sw.length < 2) continue; // skip tiny filler words
+      if (sw.length < 2) continue;
       const searchStart = bestIdx;
       const limit = Math.min(searchStart + SEARCH_WINDOW, words.length);
       for (let j = searchStart; j < limit; j++) {
@@ -73,15 +87,59 @@ export function useSpeechRecognition(words: string[]): SpeechRecognitionHook {
     }
 
     if (bestIdx > wordIndexRef.current) {
-      console.log(`[Karaoke] Advanced ${wordIndexRef.current} → ${bestIdx} (spoken: "${spokenTranscript.slice(-40)}")`);
-      wordIndexRef.current = bestIdx;
-      setCurrentWordIndex(bestIdx);
+      console.log(`[Karaoke] Voice → ${wordIndexRef.current} → ${bestIdx}`);
+      advanceTo(bestIdx);
     }
-  }, [words]);
+  }, [words, advanceTo]);
 
+  // ---------- Fallback timer ----------
+  const startFallback = useCallback(() => {
+    stopFallback();
+    lastAdvanceTime.current = Date.now() + (INITIAL_GRACE_S * 1000); // grace period
+
+    fallbackTimerRef.current = setInterval(() => {
+      const now = Date.now();
+      const elapsed = (now - lastAdvanceTime.current) / 1000;
+
+      // Only advance on silence if enough time has passed
+      if (elapsed >= SILENCE_TIMEOUT_S && wordIndexRef.current < words.length) {
+        const next = wordIndexRef.current + 1;
+        console.log(`[Karaoke] Fallback → advancing to ${next} (silence ${elapsed.toFixed(1)}s)`);
+        advanceTo(next);
+      }
+    }, 1200);
+  }, [words.length, advanceTo]);
+
+  const stopFallback = useCallback(() => {
+    if (fallbackTimerRef.current) {
+      clearInterval(fallbackTimerRef.current);
+      fallbackTimerRef.current = null;
+    }
+  }, []);
+
+  // ---------- Start / Stop ----------
   const start = useCallback(() => {
-    if (!isSupported) return;
     setError(null);
+
+    // Reset index only if we've reached the end
+    if (wordIndexRef.current >= words.length) {
+      wordIndexRef.current = 0;
+      setCurrentWordIndex(0);
+    }
+
+    setTranscript('');
+    lastAdvanceTime.current = Date.now();
+
+    // Always start the fallback timer
+    startFallback();
+
+    if (!isSupported) {
+      speechAvailable.current = false;
+      setIsListening(true);
+      console.log('[Karaoke] No speech API — using fallback timer only');
+      return;
+    }
+
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     const recognition = new SpeechRecognition();
     recognition.continuous = true;
@@ -91,12 +149,9 @@ export function useSpeechRecognition(words: string[]): SpeechRecognitionHook {
 
     recognition.onresult = (e: SpeechRecognitionEvent) => {
       for (let i = e.resultIndex; i < e.results.length; i++) {
-        // Try all alternatives for better matching
         for (let alt = 0; alt < e.results[i].length; alt++) {
           const text = e.results[i][alt].transcript;
-          if (text.trim()) {
-            matchWord(text);
-          }
+          if (text.trim()) matchWord(text);
         }
         if (!e.results[i].isFinal) {
           setTranscript(e.results[i][0].transcript);
@@ -105,6 +160,7 @@ export function useSpeechRecognition(words: string[]): SpeechRecognitionHook {
     };
 
     recognition.onend = () => {
+      // Auto-restart if still active
       if (recognitionRef.current) {
         try { recognition.start(); } catch {}
       }
@@ -113,44 +169,47 @@ export function useSpeechRecognition(words: string[]): SpeechRecognitionHook {
     recognition.onerror = (e: any) => {
       if (e.error === 'not-allowed') {
         setError('microphone-blocked');
-        stop();
+        speechAvailable.current = false;
+        // Keep fallback running
+        console.log('[Karaoke] Mic blocked — fallback timer active');
+      } else if (e.error === 'not-allowed' || e.error === 'service-not-available') {
+        speechAvailable.current = false;
       } else if (e.error !== 'no-speech' && e.error !== 'aborted') {
-        console.error('Speech recognition error:', e.error);
+        console.error('[Karaoke] Speech error:', e.error);
       }
     };
 
     recognitionRef.current = recognition;
-
-    // Resume: only reset index if we've reached the end
-    if (wordIndexRef.current >= words.length) {
-      wordIndexRef.current = 0;
-      setCurrentWordIndex(0);
+    try {
+      recognition.start();
+    } catch {
+      speechAvailable.current = false;
+      console.log('[Karaoke] Speech start failed — fallback only');
     }
-
-    setTranscript('');
-    recognition.start();
     setIsListening(true);
-    console.log('[Karaoke] Speech recognition started. Words to track:', words.length);
-  }, [isSupported, matchWord, words.length]);
+    console.log('[Karaoke] Started. Words:', words.length);
+  }, [isSupported, matchWord, words.length, startFallback]);
 
   const stop = useCallback(() => {
+    stopFallback();
     if (recognitionRef.current) {
       const r = recognitionRef.current;
       recognitionRef.current = null;
-      r.stop();
-      setIsListening(false);
-      console.log('[Karaoke] Speech recognition stopped at word index:', wordIndexRef.current);
+      try { r.stop(); } catch {}
     }
-  }, []);
+    setIsListening(false);
+    console.log('[Karaoke] Stopped at word:', wordIndexRef.current);
+  }, [stopFallback]);
 
   useEffect(() => {
     return () => {
+      stopFallback();
       if (recognitionRef.current) {
-        recognitionRef.current.stop();
+        try { recognitionRef.current.stop(); } catch {}
         recognitionRef.current = null;
       }
     };
-  }, []);
+  }, [stopFallback]);
 
   return { isListening, transcript, currentWordIndex, error, start, stop, isSupported };
 }
