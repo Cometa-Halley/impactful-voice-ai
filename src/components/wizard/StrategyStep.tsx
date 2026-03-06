@@ -26,30 +26,30 @@ const METHODOLOGY_COLORS: Record<MethodologyKey, string> = {
   jobs: 'border-soft-blue/50 hover:border-soft-blue',
 };
 
-const METHODOLOGY_PLACEHOLDERS: Record<MethodologyKey, string[]> = {
+const PLACEHOLDER_KEYS: Record<MethodologyKey, string[]> = {
   sinek: [
-    'e.g. I help entrepreneurs find clarity because I believe every idea deserves a voice...',
-    'e.g. Through 1-on-1 coaching and frameworks that simplify complex ideas...',
-    'e.g. A 6-week communication program that transforms how founders pitch...',
-    'e.g. Early-stage founders who struggle to articulate their vision clearly...',
+    'methodologies.sinek.placeholders.0',
+    'methodologies.sinek.placeholders.1',
+    'methodologies.sinek.placeholders.2',
+    'methodologies.sinek.placeholders.3',
   ],
   obama: [
-    'e.g. Growing up, I watched my mother work two jobs while pursuing her education...',
-    'e.g. The moment I failed my first public presentation changed everything for me...',
-    'e.g. We all share the desire to be heard and to make our stories matter...',
-    'e.g. I want them to feel empowered to share their own story without fear...',
+    'methodologies.obama.placeholders.0',
+    'methodologies.obama.placeholders.1',
+    'methodologies.obama.placeholders.2',
+    'methodologies.obama.placeholders.3',
   ],
   robbins: [
-    'e.g. They believe they need to be perfect before they can start creating content...',
-    'e.g. The confidence to press record and speak authentically without a script...',
-    'e.g. Record a 30-second video right now sharing one thing they learned today...',
-    'e.g. Unstoppable excitement — the feeling that they CAN do this starting today...',
+    'methodologies.robbins.placeholders.0',
+    'methodologies.robbins.placeholders.1',
+    'methodologies.robbins.placeholders.2',
+    'methodologies.robbins.placeholders.3',
   ],
   jobs: [
-    'e.g. Most people spend hours preparing presentations that nobody remembers...',
-    'e.g. Our AI coach analyzes your delivery in real-time and gives instant feedback...',
-    'e.g. Users improve their speaking score by 40% in just 3 sessions...',
-    'e.g. "One more thing" — it also writes your script for you in 30 seconds...',
+    'methodologies.jobs.placeholders.0',
+    'methodologies.jobs.placeholders.1',
+    'methodologies.jobs.placeholders.2',
+    'methodologies.jobs.placeholders.3',
   ],
 };
 
@@ -129,7 +129,7 @@ export default function StrategyStep() {
                 <Textarea
                   value={answers[i] || ''}
                   onChange={e => updateAnswer(i, e.target.value)}
-                  placeholder={METHODOLOGY_PLACEHOLDERS[methodology]?.[i] || t('createVideo.writePlaceholder')}
+                  placeholder={t(PLACEHOLDER_KEYS[methodology]?.[i] || 'createVideo.writePlaceholder')}
                   className="min-h-[100px] bg-muted/50 border-border focus:border-primary"
                 />
               </div>
