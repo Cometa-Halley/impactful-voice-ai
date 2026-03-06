@@ -7,7 +7,8 @@ interface Props {
   isActive: boolean;
 }
 
-const SYLLABLES_PER_2S = 9; // 9 syllables every 2 seconds
+const SYLLABLES_PER_PERIOD = 9;
+const PERIOD_MS = 1800; // 1.8s per 9 syllables
 
 function countSyllables(text: string): number {
   const clean = text.toLowerCase().replace(/[^a-záéíóúüàèìòùâêîôûäëïöü]/g, ' ');
