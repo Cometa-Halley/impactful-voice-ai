@@ -21,6 +21,7 @@ export interface VideoFlowState {
 
   // Step 3: Script & Refine
   script: string;
+  proposedScript: string | null;
   chatMessages: ChatMessage[];
   isGenerating: boolean;
   isRefining: boolean;
@@ -39,6 +40,9 @@ export interface VideoFlowState {
   setAnswers: (answers: string[]) => void;
   updateAnswer: (index: number, value: string) => void;
   setScript: (script: string) => void;
+  setProposedScript: (script: string | null) => void;
+  acceptProposal: () => void;
+  rejectProposal: () => void;
   appendScript: (delta: string) => void;
   setIsGenerating: (v: boolean) => void;
   setIsRefining: (v: boolean) => void;
@@ -57,6 +61,7 @@ const initialState = {
   methodology: null as MethodologyKey | null,
   answers: [] as string[],
   script: '',
+  proposedScript: null as string | null,
   chatMessages: [] as ChatMessage[],
   isGenerating: false,
   isRefining: false,
@@ -81,6 +86,9 @@ export const useVideoFlowStore = create<VideoFlowState>()(
           return { answers: next };
         }),
       setScript: (script) => set({ script }),
+      setProposedScript: (script) => set({ proposedScript: script }),
+      acceptProposal: () => set((s) => ({ script: s.proposedScript || s.script, proposedScript: null })),
+      rejectProposal: () => set({ proposedScript: null }),
       appendScript: (delta) => set((s) => ({ script: s.script + delta })),
       setIsGenerating: (v) => set({ isGenerating: v }),
       setIsRefining: (v) => set({ isRefining: v }),
