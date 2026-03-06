@@ -81,20 +81,21 @@ const VideoCreatorWizard = () => {
     setStep(2);
 
     try {
-      await generateScript({
+      const result = await generateScript({
         methodology,
         answers,
         duration: videoDuration,
         format: videoFormat,
         language: i18nInstance.language,
-        onDelta: (text) => appendScript(text),
-        onDone: () => setIsGenerating(false),
       });
+      // Store the raw JSON string so clean-script and display can parse it
+      setScript(JSON.stringify(result));
     } catch {
       toast.error(t('createVideo.failedGenerate'));
+    } finally {
       setIsGenerating(false);
     }
-  }, [methodology, answers, videoFormat, videoDuration, t, setIsGenerating, setScript, setStep, appendScript]);
+  }, [methodology, answers, videoFormat, videoDuration, t, setIsGenerating, setScript, setStep]);
 
   const handleGoToRecord = useCallback(async () => {
     if (!user || !methodology || !script || !videoFormat || !videoDuration) return;
