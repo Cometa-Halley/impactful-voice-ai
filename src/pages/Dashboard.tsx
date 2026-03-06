@@ -357,32 +357,6 @@ const Dashboard = () => {
         </motion.div>
       )}
 
-      {/* Quick actions */}
-      <motion.div initial="hidden" animate="visible" variants={fadeUp} custom={9}>
-        <h2 className="text-lg font-semibold text-foreground mb-4">{t('dashboard.quickActions')}</h2>
-      </motion.div>
-      <div className="grid gap-4 sm:grid-cols-3">
-        {actions.map((a, i) => (
-          <motion.div key={a.title} initial="hidden" animate="visible" variants={fadeUp} custom={i + 10}>
-            <Link to={a.to}>
-              <Card className="gradient-card border-border group cursor-pointer transition-all duration-300 hover:border-primary/30 hover:scale-[1.02]">
-                <CardHeader className="pb-2">
-                  <div className={`mb-2 flex h-10 w-10 items-center justify-center rounded-xl bg-secondary ${a.color}`}>
-                    <a.icon className="h-5 w-5" />
-                  </div>
-                  <CardTitle className="text-base">{a.title}</CardTitle>
-                  <CardDescription className="text-xs">{a.desc}</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <span className="inline-flex items-center text-sm text-primary opacity-0 transition-opacity group-hover:opacity-100">
-                    {t('dashboard.go')} <ArrowRight className="ml-1 h-3 w-3" />
-                  </span>
-                </CardContent>
-              </Card>
-            </Link>
-          </motion.div>
-        ))}
-      </div>
     </AppLayout>
   );
 };
