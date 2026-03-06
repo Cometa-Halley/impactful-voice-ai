@@ -62,20 +62,27 @@ export default function Teleprompter({ script, currentWordIndex, isActive }: Pro
   const lines = useMemo(() => splitIntoBreathLines(script), [script]);
   const [timedLineIndex, setTimedLineIndex] = useState(0);
 
-  // Auto-advance every 3 seconds when active
+  const currentDuration = useMemo(
+    () => lines[timedLineIndex] ? lineDurationMs(lines[timedLineIndex]) : 2000,
+    [lines, timedLineIndex]
+  );
+
+  // Auto-advance based on syllable-calculated duration
   useEffect(() => {
     if (!isActive || lines.length === 0) return;
     setTimedLineIndex(0);
-
-    const interval = setInterval(() => {
-      setTimedLineIndex(prev => {
-        if (prev >= lines.length - 1) return prev;
-        return prev + 1;
-      });
-    }, LINE_DURATION_MS);
-
-    return () => clearInterval(interval);
   }, [isActive, lines.length]);
+
+  useEffect(() => {
+    if (!isActive || lines.length === 0) return;
+    if (timedLineIndex >= lines.length) return;
+
+    const timeout = setTimeout(() => {
+      setTimedLineIndex(prev => (prev >= lines.length - 1 ? prev : prev + 1));
+    }, lineDurationMs(lines[timedLineIndex]));
+
+    return () => clearTimeout(timeout);
+  }, [isActive, lines, timedLineIndex]);
 
   // Reset when not active
   useEffect(() => {
