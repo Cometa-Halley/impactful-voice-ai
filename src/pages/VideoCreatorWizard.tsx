@@ -74,6 +74,8 @@ const VideoCreatorWizard = () => {
     if (!methodology || !videoFormat || !videoDuration) return;
     setIsGenerating(true);
     setScript('');
+    setChatMessages([]);
+    setProposedScript(null);
     setStep(2);
 
     try {
