@@ -69,8 +69,6 @@ const VideoCreatorWizard = () => {
     }
   };
 
-  const currentLanguage = t('__lng__', { defaultValue: '' }) || (typeof window !== 'undefined' ? document.documentElement.lang : 'en') || 'en';
-  const resolvedLanguage = (window as any).__i18n_lang ?? 'en';
 
   const handleGenerateScript = useCallback(async () => {
     if (!methodology || !videoFormat || !videoDuration) return;
