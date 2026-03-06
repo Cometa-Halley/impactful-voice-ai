@@ -128,6 +128,7 @@ const CreateVideo = () => {
     if (!selectedMethodology || !videoFormat || !videoDuration) return;
     setIsGenerating(true);
     setScript('');
+    setChatMessages([]);
     setCurrentStep(3);
 
     try {

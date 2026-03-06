@@ -35,6 +35,7 @@ const VideoCreatorWizard = () => {
     currentStep, videoFormat, videoDuration, methodology, answers,
     script, isGenerating, scriptId,
     setStep, setScript, setIsGenerating, setScriptId, appendScript,
+    setChatMessages, setProposedScript,
   } = store;
 
   const [recordedBlob, setRecordedBlob] = useState<Blob | null>(null);
@@ -74,6 +75,8 @@ const VideoCreatorWizard = () => {
     if (!methodology || !videoFormat || !videoDuration) return;
     setIsGenerating(true);
     setScript('');
+    setChatMessages([]);
+    setProposedScript(null);
     setStep(2);
 
     try {
