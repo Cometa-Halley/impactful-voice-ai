@@ -226,7 +226,8 @@
     "waveToStart": "Saluda para empezar",
     "orPress": "o presiona el botón",
     "listening": "Escuchando...",
-    "speechNotSupported": "Reconocimiento de voz no soportado en este navegador. El teleprompter se desplazará manualmente."
+    "speechNotSupported": "Reconocimiento de voz no soportado en este navegador. El teleprompter se desplazará manualmente.",
+    "tips": "Recomendaciones"
   },
   "analysis": {
     "scoreBreakdown": "Desglose de Puntuación",
