@@ -15,11 +15,11 @@ interface SpeechRecognitionEvent extends Event {
   resultIndex: number;
 }
 
-const SEARCH_WINDOW = 15;
+const SEARCH_WINDOW = 6;
 /** Seconds of silence before fallback auto-advances one word */
-const SILENCE_TIMEOUT_S = 3.5;
+const SILENCE_TIMEOUT_S = 4;
 /** Seconds for initial grace period (user may need time to start reading) */
-const INITIAL_GRACE_S = 5;
+const INITIAL_GRACE_S = 6;
 
 export function useSpeechRecognition(words: string[]): SpeechRecognitionHook {
   const [isListening, setIsListening] = useState(false);
@@ -44,10 +44,11 @@ export function useSpeechRecognition(words: string[]): SpeechRecognitionHook {
   const fuzzyMatch = (spoken: string, script: string): boolean => {
     if (!spoken || !script) return false;
     if (spoken === script) return true;
-    if (script.startsWith(spoken) || spoken.startsWith(script)) return true;
-    if (script.length > 2 && spoken.includes(script)) return true;
-    if (spoken.length > 2 && script.includes(spoken)) return true;
-    if (spoken.length > 4 && script.length > 4 && Math.abs(spoken.length - script.length) <= 2) {
+    // Only prefix match for longer words to avoid false positives
+    if (spoken.length >= 4 && script.startsWith(spoken)) return true;
+    if (script.length >= 4 && spoken.startsWith(script)) return true;
+    // Allow 1 character mismatch for words >= 5 chars
+    if (spoken.length >= 5 && script.length >= 5 && Math.abs(spoken.length - script.length) <= 1) {
       let mismatches = 0;
       const minLen = Math.min(spoken.length, script.length);
       for (let i = 0; i < minLen; i++) {
@@ -80,7 +81,8 @@ export function useSpeechRecognition(words: string[]): SpeechRecognitionHook {
       for (let j = searchStart; j < limit; j++) {
         const scriptWord = normalizeWord(words[j]);
         if (fuzzyMatch(sw, scriptWord)) {
-          bestIdx = j + 1;
+          // Cap advance to max 2 words at a time to prevent skipping
+          bestIdx = Math.min(j + 1, bestIdx + 2);
           break;
         }
       }
