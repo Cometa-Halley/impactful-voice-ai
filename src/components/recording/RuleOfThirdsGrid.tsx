@@ -12,7 +12,7 @@ export default function RuleOfThirdsGrid() {
       <div className="absolute left-0 right-0 top-1/3 h-px bg-white/20" />
       <div className="absolute left-0 right-0 bottom-1/3 h-px bg-white/20" />
       {/* Central focal point */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-6 h-6 border border-white/25 rounded-sm" />
+      
     </div>
   );
 }
