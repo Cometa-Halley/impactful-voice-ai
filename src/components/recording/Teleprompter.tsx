@@ -87,17 +87,13 @@ export default function Teleprompter({ script, currentWordIndex, isActive }: Pro
                   <motion.span
                     key={`${activeLineIndex}-${i}`}
                     animate={{
-                      opacity: isPast ? 0.18 : 1,
                       scale: isCurrent ? 1.06 : 1,
-                      y: isPast ? -1 : 0,
                     }}
                     transition={{ duration: 0.22, ease: 'easeOut' }}
                     className={`inline-block mx-[2px] sm:mx-[3px] text-sm sm:text-base md:text-lg font-bold tracking-wide ${
                       isCurrent
                         ? 'text-primary drop-shadow-[0_0_12px_hsl(var(--primary)/0.85)]'
-                        : isPast
-                          ? 'text-primary/20'
-                          : 'text-white/90'
+                        : 'text-white/90'
                     }`}
                   >
                     {word}
