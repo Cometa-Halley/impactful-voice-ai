@@ -15,11 +15,70 @@ interface SpeechRecognitionEvent extends Event {
   resultIndex: number;
 }
 
-const SEARCH_WINDOW = 6;
+/** How many script words ahead we search for a match */
+const SEARCH_WINDOW = 8;
 /** Seconds of silence before fallback auto-advances one word */
 const SILENCE_TIMEOUT_S = 4;
-/** Seconds for initial grace period (user may need time to start reading) */
+/** Seconds for initial grace period */
 const INITIAL_GRACE_S = 6;
+/** Levenshtein threshold relative to word length */
+const LEVENSHTEIN_MAX_DIST = 2;
+/** Delay before restarting recognition after it stops (ms) */
+const RESTART_DELAY_MS = 150;
+
+// ---- Utilities ----
+
+function normalizeWord(w: string): string {
+  return w
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '') // strip accents
+    .replace(/[^a-z0-9]/g, '');      // strip all punctuation
+}
+
+function levenshtein(a: string, b: string): number {
+  if (a === b) return 0;
+  if (!a.length) return b.length;
+  if (!b.length) return a.length;
+
+  // Optimisation: if length difference alone exceeds threshold, skip
+  if (Math.abs(a.length - b.length) > LEVENSHTEIN_MAX_DIST) return LEVENSHTEIN_MAX_DIST + 1;
+
+  const matrix: number[][] = [];
+  for (let i = 0; i <= a.length; i++) matrix[i] = [i];
+  for (let j = 0; j <= b.length; j++) matrix[0][j] = j;
+
+  for (let i = 1; i <= a.length; i++) {
+    for (let j = 1; j <= b.length; j++) {
+      const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+      matrix[i][j] = Math.min(
+        matrix[i - 1][j] + 1,
+        matrix[i][j - 1] + 1,
+        matrix[i - 1][j - 1] + cost
+      );
+    }
+  }
+  return matrix[a.length][b.length];
+}
+
+function fuzzyMatch(spoken: string, script: string): boolean {
+  if (!spoken || !script) return false;
+  if (spoken === script) return true;
+
+  // Prefix / contains for longer words
+  if (spoken.length >= 3 && script.startsWith(spoken)) return true;
+  if (script.length >= 3 && spoken.startsWith(script)) return true;
+
+  // Levenshtein for words >= 3 chars
+  if (spoken.length >= 3 && script.length >= 3) {
+    const maxDist = Math.min(LEVENSHTEIN_MAX_DIST, Math.floor(Math.max(spoken.length, script.length) / 3));
+    return levenshtein(spoken, script) <= Math.max(1, maxDist);
+  }
+
+  return false;
+}
+
+// ---- Hook ----
 
 export function useSpeechRecognition(words: string[]): SpeechRecognitionHook {
   const [isListening, setIsListening] = useState(false);
@@ -31,34 +90,17 @@ export function useSpeechRecognition(words: string[]): SpeechRecognitionHook {
   const wordIndexRef = useRef(0);
   const lastAdvanceTime = useRef(0);
   const fallbackTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const speechAvailable = useRef(true); // tracks whether speech recognition is working
+  const speechAvailable = useRef(true);
+  const restartTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Pre-normalize all script words once
+  const normalizedWords = useRef<string[]>([]);
+  useEffect(() => {
+    normalizedWords.current = words.map(normalizeWord);
+  }, [words]);
 
   const isSupported = typeof window !== 'undefined' &&
     ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window);
-
-  const normalizeWord = (w: string) =>
-    w.toLowerCase()
-      .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
-      .replace(/[^a-z0-9]/gi, '');
-
-  const fuzzyMatch = (spoken: string, script: string): boolean => {
-    if (!spoken || !script) return false;
-    if (spoken === script) return true;
-    // Only prefix match for longer words to avoid false positives
-    if (spoken.length >= 4 && script.startsWith(spoken)) return true;
-    if (script.length >= 4 && spoken.startsWith(script)) return true;
-    // Allow 1 character mismatch for words >= 5 chars
-    if (spoken.length >= 5 && script.length >= 5 && Math.abs(spoken.length - script.length) <= 1) {
-      let mismatches = 0;
-      const minLen = Math.min(spoken.length, script.length);
-      for (let i = 0; i < minLen; i++) {
-        if (spoken[i] !== script[i]) mismatches++;
-        if (mismatches > 1) return false;
-      }
-      return mismatches <= 1;
-    }
-    return false;
-  };
 
   const advanceTo = useCallback((idx: number) => {
     if (idx > wordIndexRef.current && idx <= words.length) {
@@ -69,20 +111,20 @@ export function useSpeechRecognition(words: string[]): SpeechRecognitionHook {
   }, [words.length]);
 
   const matchWord = useCallback((spokenTranscript: string) => {
-    const spokenWords = spokenTranscript.trim().split(/\s+/).map(normalizeWord).filter(Boolean);
+    const spokenWords = spokenTranscript.trim().split(/\s+/).map(normalizeWord).filter(w => w.length >= 2);
     if (!spokenWords.length) return;
 
     let bestIdx = wordIndexRef.current;
+    const nw = normalizedWords.current;
 
     for (const sw of spokenWords) {
-      if (sw.length < 2) continue;
       const searchStart = bestIdx;
-      const limit = Math.min(searchStart + SEARCH_WINDOW, words.length);
+      const limit = Math.min(searchStart + SEARCH_WINDOW, nw.length);
+
       for (let j = searchStart; j < limit; j++) {
-        const scriptWord = normalizeWord(words[j]);
-        if (fuzzyMatch(sw, scriptWord)) {
-          // Cap advance to max 2 words at a time to prevent skipping
-          bestIdx = Math.min(j + 1, bestIdx + 2);
+        if (fuzzyMatch(sw, nw[j])) {
+          // Advance to after the matched word — allow jumping the full window
+          bestIdx = j + 1;
           break;
         }
       }
@@ -95,23 +137,6 @@ export function useSpeechRecognition(words: string[]): SpeechRecognitionHook {
   }, [words, advanceTo]);
 
   // ---------- Fallback timer ----------
-  const startFallback = useCallback(() => {
-    stopFallback();
-    lastAdvanceTime.current = Date.now() + (INITIAL_GRACE_S * 1000); // grace period
-
-    fallbackTimerRef.current = setInterval(() => {
-      const now = Date.now();
-      const elapsed = (now - lastAdvanceTime.current) / 1000;
-
-      // Only advance on silence if enough time has passed
-      if (elapsed >= SILENCE_TIMEOUT_S && wordIndexRef.current < words.length) {
-        const next = wordIndexRef.current + 1;
-        console.log(`[Karaoke] Fallback → advancing to ${next} (silence ${elapsed.toFixed(1)}s)`);
-        advanceTo(next);
-      }
-    }, 1200);
-  }, [words.length, advanceTo]);
-
   const stopFallback = useCallback(() => {
     if (fallbackTimerRef.current) {
       clearInterval(fallbackTimerRef.current);
@@ -119,11 +144,39 @@ export function useSpeechRecognition(words: string[]): SpeechRecognitionHook {
     }
   }, []);
 
+  const startFallback = useCallback(() => {
+    stopFallback();
+    lastAdvanceTime.current = Date.now() + (INITIAL_GRACE_S * 1000);
+
+    fallbackTimerRef.current = setInterval(() => {
+      const elapsed = (Date.now() - lastAdvanceTime.current) / 1000;
+      if (elapsed >= SILENCE_TIMEOUT_S && wordIndexRef.current < words.length) {
+        const next = wordIndexRef.current + 1;
+        console.log(`[Karaoke] Fallback → advancing to ${next} (silence ${elapsed.toFixed(1)}s)`);
+        advanceTo(next);
+      }
+    }, 1200);
+  }, [words.length, advanceTo, stopFallback]);
+
+  // ---------- Auto-restart helper ----------
+  const scheduleRestart = useCallback((recognition: any) => {
+    if (restartTimeoutRef.current) clearTimeout(restartTimeoutRef.current);
+    restartTimeoutRef.current = setTimeout(() => {
+      if (recognitionRef.current === recognition) {
+        try {
+          recognition.start();
+          console.log('[Karaoke] Auto-restarted recognition');
+        } catch {
+          // Will retry on next onend
+        }
+      }
+    }, RESTART_DELAY_MS);
+  }, []);
+
   // ---------- Start / Stop ----------
   const start = useCallback(() => {
     setError(null);
 
-    // Reset index only if we've reached the end
     if (wordIndexRef.current >= words.length) {
       wordIndexRef.current = 0;
       setCurrentWordIndex(0);
@@ -131,8 +184,6 @@ export function useSpeechRecognition(words: string[]): SpeechRecognitionHook {
 
     setTranscript('');
     lastAdvanceTime.current = Date.now();
-
-    // Always start the fallback timer
     startFallback();
 
     if (!isSupported) {
@@ -151,6 +202,7 @@ export function useSpeechRecognition(words: string[]): SpeechRecognitionHook {
 
     recognition.onresult = (e: SpeechRecognitionEvent) => {
       for (let i = e.resultIndex; i < e.results.length; i++) {
+        // Check all alternatives for best match
         for (let alt = 0; alt < e.results[i].length; alt++) {
           const text = e.results[i][alt].transcript;
           if (text.trim()) matchWord(text);
@@ -162,9 +214,9 @@ export function useSpeechRecognition(words: string[]): SpeechRecognitionHook {
     };
 
     recognition.onend = () => {
-      // Auto-restart if still active
-      if (recognitionRef.current) {
-        try { recognition.start(); } catch {}
+      // Auto-restart with a small delay to avoid rapid restart loops
+      if (recognitionRef.current === recognition) {
+        scheduleRestart(recognition);
       }
     };
 
@@ -172,11 +224,13 @@ export function useSpeechRecognition(words: string[]): SpeechRecognitionHook {
       if (e.error === 'not-allowed') {
         setError('microphone-blocked');
         speechAvailable.current = false;
-        // Keep fallback running
         console.log('[Karaoke] Mic blocked — fallback timer active');
-      } else if (e.error === 'not-allowed' || e.error === 'service-not-available') {
+      } else if (e.error === 'service-not-available') {
         speechAvailable.current = false;
-      } else if (e.error !== 'no-speech' && e.error !== 'aborted') {
+      } else if (e.error === 'no-speech' || e.error === 'aborted') {
+        // These are normal — recognition will auto-restart via onend
+        console.log(`[Karaoke] ${e.error} — will auto-restart`);
+      } else {
         console.error('[Karaoke] Speech error:', e.error);
       }
     };
@@ -190,10 +244,14 @@ export function useSpeechRecognition(words: string[]): SpeechRecognitionHook {
     }
     setIsListening(true);
     console.log('[Karaoke] Started. Words:', words.length);
-  }, [isSupported, matchWord, words.length, startFallback]);
+  }, [isSupported, matchWord, words.length, startFallback, scheduleRestart]);
 
   const stop = useCallback(() => {
     stopFallback();
+    if (restartTimeoutRef.current) {
+      clearTimeout(restartTimeoutRef.current);
+      restartTimeoutRef.current = null;
+    }
     if (recognitionRef.current) {
       const r = recognitionRef.current;
       recognitionRef.current = null;
@@ -206,6 +264,7 @@ export function useSpeechRecognition(words: string[]): SpeechRecognitionHook {
   useEffect(() => {
     return () => {
       stopFallback();
+      if (restartTimeoutRef.current) clearTimeout(restartTimeoutRef.current);
       if (recognitionRef.current) {
         try { recognitionRef.current.stop(); } catch {}
         recognitionRef.current = null;
