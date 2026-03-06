@@ -260,11 +260,9 @@
     "steps": {
       "format": "Format",
       "strategy": "Strategy",
-      "context": "Context",
-      "script": "Script",
-      "refine": "Refine",
+      "script": "Script & Refine",
       "record": "Record",
-      "validate": "Validate"
+      "validate": "Review"
     },
     "formatOrientation": "Video orientation",
     "formatOrientationDesc": "How do you want to record your message?",
