@@ -326,7 +326,13 @@
         "What is the tangible result — the product, service, or idea you are offering?",
         "Who is your audience, and what do you want them to believe after hearing you?"
       ],
-      "scriptStructure": ["WHY — Purpose & belief", "HOW — Process & differentiation", "WHAT — Offer & proof"]
+      "scriptStructure": ["WHY — Purpose & belief", "HOW — Process & differentiation", "WHAT — Offer & proof"],
+      "placeholders": [
+        "e.g. I help entrepreneurs find clarity because I believe every idea deserves a voice...",
+        "e.g. Through 1-on-1 coaching and frameworks that simplify complex ideas...",
+        "e.g. A 6-week communication program that transforms how founders pitch...",
+        "e.g. Early-stage founders who struggle to articulate their vision clearly..."
+      ]
     },
     "obama": {
       "name": "Obama — Connect",
@@ -338,7 +344,13 @@
         "What universal truth or shared value does your story reveal?",
         "What action or reflection do you want your audience to take away?"
       ],
-      "scriptStructure": ["PERSONAL STORY — Anchor experience", "CONFLICT — Challenge & tension", "UNIVERSAL TRUTH — Shared value", "CALL TO UNITY — Collective action"]
+      "scriptStructure": ["PERSONAL STORY — Anchor experience", "CONFLICT — Challenge & tension", "UNIVERSAL TRUTH — Shared value", "CALL TO UNITY — Collective action"],
+      "placeholders": [
+        "e.g. Growing up, I watched my mother work two jobs while pursuing her education...",
+        "e.g. The moment I failed my first public presentation changed everything for me...",
+        "e.g. We all share the desire to be heard and to make our stories matter...",
+        "e.g. I want them to feel empowered to share their own story without fear..."
+      ]
     },
     "robbins": {
       "name": "Robbins — Activate",
@@ -350,7 +362,13 @@
         "What is the first concrete step they can take right now?",
         "What emotional state do you want them to feel — urgency, empowerment, excitement?"
       ],
-      "scriptStructure": ["PATTERN INTERRUPT — Break the status quo", "PAIN POINT — Expose the real problem", "VISION — Show the transformation", "ACTION COMMAND — Immediate next step"]
+      "scriptStructure": ["PATTERN INTERRUPT — Break the status quo", "PAIN POINT — Expose the real problem", "VISION — Show the transformation", "ACTION COMMAND — Immediate next step"],
+      "placeholders": [
+        "e.g. They believe they need to be perfect before they can start creating content...",
+        "e.g. The confidence to press record and speak authentically without a script...",
+        "e.g. Record a 30-second video right now sharing one thing they learned today...",
+        "e.g. Unstoppable excitement — the feeling that they CAN do this starting today..."
+      ]
     },
     "jobs": {
       "name": "Jobs — Present",
@@ -362,7 +380,13 @@
         "What is the single most impressive fact, demo, or result you can show?",
         "How do you want the audience to remember this — what is the \"one more thing\"?"
       ],
-      "scriptStructure": ["PROBLEM — Set the stage", "SOLUTION — Introduce your answer", "DEMO/PROOF — Show, don't tell", "ONE MORE THING — Memorable close"]
+      "scriptStructure": ["PROBLEM — Set the stage", "SOLUTION — Introduce your answer", "DEMO/PROOF — Show, don't tell", "ONE MORE THING — Memorable close"],
+      "placeholders": [
+        "e.g. Most people spend hours preparing presentations that nobody remembers...",
+        "e.g. Our AI coach analyzes your delivery in real-time and gives instant feedback...",
+        "e.g. Users improve their speaking score by 40% in just 3 sessions...",
+        "e.g. \"One more thing\" — it also writes your script for you in 30 seconds..."
+      ]
     }
   },
   "templateContent": {
