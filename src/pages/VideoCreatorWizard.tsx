@@ -42,13 +42,7 @@ const VideoCreatorWizard = () => {
   const [recordedBlob, setRecordedBlob] = useState<Blob | null>(null);
   const [isSaving, setIsSaving] = useState(false);
 
-  // Pre-load camera/mic while on step 2 (Script)
   const mediaDevices = useMediaDevices();
-  useEffect(() => {
-    if (currentStep === 2 && !mediaDevices.stream && !mediaDevices.hasCamera) {
-      mediaDevices.startDevices();
-    }
-  }, [currentStep]);
 
   const steps = [
     { label: t('createVideo.steps.format'), icon: Monitor },
