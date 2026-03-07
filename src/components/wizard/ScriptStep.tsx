@@ -1,4 +1,4 @@
-import { useRef, useEffect, useCallback, useMemo, useState } from 'react';
+import { useRef, useEffect, useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -19,65 +19,10 @@ const QUICK_REFINEMENT_KEYS = [
   'moreDirect', 'reduce30', 'moreEmotional', 'addUrgency', 'simplify',
 ] as const;
 
-/* ── Simple line-diff helper ── */
-function diffLines(oldText: string, newText: string) {
-  const oldLines = oldText.split('\n');
-  const newLines = newText.split('\n');
-  const maxLen = Math.max(oldLines.length, newLines.length);
-  const result: Array<{ type: 'same' | 'removed' | 'added'; text: string }> = [];
-
-  // Simple LCS-based approach: match equal lines, mark rest as added/removed
-  const oldSet = new Map<string, number[]>();
-  oldLines.forEach((line, i) => {
-    if (!oldSet.has(line)) oldSet.set(line, []);
-    oldSet.get(line)!.push(i);
-  });
-
-  let oi = 0;
-  let ni = 0;
-  while (oi < oldLines.length && ni < newLines.length) {
-    if (oldLines[oi] === newLines[ni]) {
-      result.push({ type: 'same', text: oldLines[oi] });
-      oi++;
-      ni++;
-    } else {
-      // Look ahead in new for a match with current old
-      let foundInNew = -1;
-      for (let j = ni + 1; j < Math.min(ni + 5, newLines.length); j++) {
-        if (newLines[j] === oldLines[oi]) { foundInNew = j; break; }
-      }
-      let foundInOld = -1;
-      for (let j = oi + 1; j < Math.min(oi + 5, oldLines.length); j++) {
-        if (oldLines[j] === newLines[ni]) { foundInOld = j; break; }
-      }
-
-      if (foundInNew !== -1 && (foundInOld === -1 || foundInNew - ni <= foundInOld - oi)) {
-        // Lines added in new
-        for (let j = ni; j < foundInNew; j++) {
-          result.push({ type: 'added', text: newLines[j] });
-        }
-        ni = foundInNew;
-      } else if (foundInOld !== -1) {
-        // Lines removed from old
-        for (let j = oi; j < foundInOld; j++) {
-          result.push({ type: 'removed', text: oldLines[j] });
-        }
-        oi = foundInOld;
-      } else {
-        result.push({ type: 'removed', text: oldLines[oi] });
-        result.push({ type: 'added', text: newLines[ni] });
-        oi++;
-        ni++;
-      }
-    }
-  }
-  while (oi < oldLines.length) {
-    result.push({ type: 'removed', text: oldLines[oi++] });
-  }
-  while (ni < newLines.length) {
-    result.push({ type: 'added', text: newLines[ni++] });
-  }
-  return result;
+/** Convert any raw value (possibly JSON) into clean readable script text */
+function toReadableScript(raw: string | null | undefined): string {
+  if (!raw) return '';
+  return formatScriptForDisplay(raw);
 }
 
 export default function ScriptStep() {
@@ -100,11 +45,6 @@ export default function ScriptStep() {
     label: t(`createVideo.quickRefinements.${key}`),
   }));
 
-  const diff = useMemo(() => {
-    if (!proposedScript || !script) return null;
-    return diffLines(script, proposedScript);
-  }, [script, proposedScript]);
-
   const handleRefine = useCallback(async (instruction: string) => {
     if (!methodology || !script || isRefining) return;
     addChatMessage({ role: 'user', content: instruction });
@@ -124,7 +64,6 @@ export default function ScriptStep() {
           updateLastAssistantMessage(refined);
         },
         onDone: () => {
-          // Store as proposal, don't auto-apply
           setProposedScript(refined);
           setIsRefining(false);
         },
@@ -136,10 +75,12 @@ export default function ScriptStep() {
 
   const hasProposal = !!proposedScript;
 
+  const displayedScript = hasProposal ? toReadableScript(proposedScript) : toReadableScript(script);
+
   return (
     <motion.div key="step-script" initial="hidden" animate="visible" exit="exit" variants={fadeUp}>
       <div className="grid gap-6 lg:grid-cols-2 min-h-[60vh] items-start">
-        {/* Left: Script document or Diff view */}
+        {/* Left: Script document */}
         <div className="space-y-4">
           <div>
             <h2 className="text-lg font-semibold text-foreground">
@@ -149,7 +90,7 @@ export default function ScriptStep() {
               {isGenerating
                 ? t('createVideo.aiCrafting')
                 : hasProposal
-                  ? t('createVideo.reviewProposal', 'Revisa los cambios sugeridos. Verde = añadido, rojo = eliminado.')
+                  ? t('createVideo.reviewProposal', 'Revisa el guion refinado. Si te convence, acepta los cambios.')
                   : t('createVideo.reviewScript')}
             </p>
           </div>
@@ -178,34 +119,10 @@ export default function ScriptStep() {
                   </div>
                 )}
 
-                {/* Diff view when proposal exists */}
-                {hasProposal && diff ? (
-                  <div className="text-sm font-mono leading-relaxed space-y-0">
-                    {diff.map((line, i) => (
-                      <div
-                        key={i}
-                        className={
-                          line.type === 'added'
-                            ? 'bg-green-500/15 text-green-400 border-l-2 border-green-500 pl-3'
-                            : line.type === 'removed'
-                              ? 'bg-red-500/15 text-red-400 border-l-2 border-red-500 pl-3 line-through opacity-70'
-                              : 'text-foreground pl-3'
-                        }
-                      >
-                        <span className="select-none text-muted-foreground mr-2 text-xs">
-                          {line.type === 'added' ? '+' : line.type === 'removed' ? '−' : ' '}
-                        </span>
-                        {line.text || '\u00A0'}
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  /* Normal script view */
-                  <div className="whitespace-pre-wrap text-sm text-foreground leading-relaxed font-mono">
-                    {formatScriptForDisplay(script)}
-                    {isGenerating && <span className="inline-block w-2 h-4 bg-primary animate-pulse ml-0.5" />}
-                  </div>
-                )}
+                <div className="whitespace-pre-wrap text-sm text-foreground leading-relaxed">
+                  {displayedScript}
+                  {isGenerating && <span className="inline-block w-2 h-4 bg-primary animate-pulse ml-0.5" />}
+                </div>
               </div>
             </CardContent>
           </Card>
@@ -247,7 +164,9 @@ export default function ScriptStep() {
                     ? 'bg-nav-hover text-white'
                     : 'bg-secondary text-foreground'
                 }`}>
-                  <div className="whitespace-pre-wrap">{msg.content}</div>
+                  <div className="whitespace-pre-wrap">
+                    {msg.role === 'assistant' ? toReadableScript(msg.content) : msg.content}
+                  </div>
                 </div>
               </div>
             ))}
