@@ -170,9 +170,10 @@ export async function analyzePerformance(
   methodology: MethodologyKey,
   script: string,
   transcription: string,
+  language?: string,
 ): Promise<AnalysisResult> {
   const { data, error } = await supabase.functions.invoke('analyze-performance', {
-    body: { methodology, script, transcription },
+    body: { methodology, script, transcription, language },
   });
 
   if (error) throw new Error(error.message || 'Analysis failed');

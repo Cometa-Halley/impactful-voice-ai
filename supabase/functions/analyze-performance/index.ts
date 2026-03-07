@@ -43,7 +43,7 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const { methodology, script, transcription } = await req.json();
+    const { methodology, script, transcription, language } = await req.json();
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
@@ -51,7 +51,11 @@ serve(async (req) => {
     const analysisPrompt = ANALYSIS_PROMPTS[methodology];
     if (!analysisPrompt) throw new Error(`Unknown methodology: ${methodology}`);
 
-    const systemPrompt = `${analysisPrompt}
+    const langInstruction = language === 'es'
+      ? '\n\nIMPORTANT: You MUST write ALL text fields (area, suggestion, summary) in Spanish.'
+      : '';
+
+    const systemPrompt = `${analysisPrompt}${langInstruction}
 
 You MUST respond by calling the "submit_analysis" tool with structured scores and suggestions. Do not respond with plain text.`;
 
