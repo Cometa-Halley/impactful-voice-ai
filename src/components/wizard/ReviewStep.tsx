@@ -1,5 +1,6 @@
 import { useState, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
+import i18n from '@/i18n';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Download, Share2, Sparkles, RotateCcw, Loader2 } from 'lucide-react';
@@ -47,7 +48,7 @@ export default function ReviewStep({ recordedBlob, onReRecord }: Props) {
       if (videoError || !videoRow) throw new Error('Failed to save video record');
 
       const transcription = script;
-      const result = await analyzePerformance(methodology, script, transcription);
+      const result = await analyzePerformance(methodology, script, transcription, i18n.language);
       const overallScoreNormalized = Math.round(result.overall_score * 10);
 
       await Promise.all([
