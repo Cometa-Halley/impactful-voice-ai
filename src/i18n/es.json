@@ -249,7 +249,12 @@
     "tipReduceNoise": "Reduce el ruido ambiental — cierra ventanas, apaga ventiladores",
     "startRecording": "Iniciar Grabación",
     "audioOk": "Los niveles de audio se ven bien",
-    "lightingOk": "La iluminación se ve bien"
+    "lightingOk": "La iluminación se ve bien",
+    "download": "Guardar",
+    "downloaded": "Video descargado",
+    "publish": "Publicar",
+    "analyzeVideo": "Analizar mi video",
+    "shareNotSupported": "Compartir no soportado en este navegador"
   },
   "analysis": {
     "scoreBreakdown": "Desglose de Puntuación",
