@@ -64,31 +64,6 @@ export default function PerformanceAnalysis({ analysis, onReRecord, onFinish }: 
 
   return (
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="max-w-3xl mx-auto space-y-6">
-      {/* Overall Score */}
-      <Card className="gradient-card border-border overflow-hidden relative">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5" />
-        <CardContent className="relative pt-8 pb-8 flex flex-col items-center gap-4">
-          <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: 'spring', stiffness: 200, delay: 0.2 }} className="relative">
-            <div className="h-28 w-28 rounded-full border-4 border-primary/30 flex items-center justify-center bg-secondary/50">
-              <div className="text-center">
-                <span className={`text-4xl font-bold ${getScoreColor(analysis.overall_score)}`}>{analysis.overall_score}</span>
-                <span className="text-muted-foreground text-sm">/10</span>
-              </div>
-            </div>
-            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }} className="absolute -bottom-2 left-1/2 -translate-x-1/2">
-              <Badge variant="outline" className="bg-secondary border-border text-foreground text-xs">{getScoreLabel(analysis.overall_score)}</Badge>
-            </motion.div>
-          </motion.div>
-          <p className="text-sm text-muted-foreground text-center max-w-md mt-4">{analysis.summary}</p>
-          {shouldReRecord && (
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.7 }} className="flex items-center gap-2 bg-destructive/10 border border-destructive/20 text-destructive rounded-lg px-4 py-2 text-sm">
-              <AlertTriangle className="h-4 w-4 shrink-0" />
-              <span>{t('analysis.recommendReRecord')}</span>
-            </motion.div>
-          )}
-        </CardContent>
-      </Card>
-
       {/* Suggestions */}
       <Card className="gradient-card border-border">
         <CardHeader className="pb-3">
@@ -123,6 +98,31 @@ export default function PerformanceAnalysis({ analysis, onReRecord, onFinish }: 
               );
             })}
           </Accordion>
+        </CardContent>
+      </Card>
+
+      {/* Overall Score */}
+      <Card className="gradient-card border-border overflow-hidden relative">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5" />
+        <CardContent className="relative pt-8 pb-8 flex flex-col items-center gap-4">
+          <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: 'spring', stiffness: 200, delay: 0.2 }} className="relative">
+            <div className="h-28 w-28 rounded-full border-4 border-primary/30 flex items-center justify-center bg-secondary/50">
+              <div className="text-center">
+                <span className={`text-4xl font-bold ${getScoreColor(analysis.overall_score)}`}>{analysis.overall_score}</span>
+                <span className="text-muted-foreground text-sm">/10</span>
+              </div>
+            </div>
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }} className="absolute -bottom-2 left-1/2 -translate-x-1/2">
+              <Badge variant="outline" className="bg-secondary border-border text-foreground text-xs">{getScoreLabel(analysis.overall_score)}</Badge>
+            </motion.div>
+          </motion.div>
+          <p className="text-sm text-muted-foreground text-center max-w-md mt-4">{analysis.summary}</p>
+          {shouldReRecord && (
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.7 }} className="flex items-center gap-2 bg-destructive/10 border border-destructive/20 text-destructive rounded-lg px-4 py-2 text-sm">
+              <AlertTriangle className="h-4 w-4 shrink-0" />
+              <span>{t('analysis.recommendReRecord')}</span>
+            </motion.div>
+          )}
         </CardContent>
       </Card>
 
