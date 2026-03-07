@@ -89,35 +89,6 @@ export default function PerformanceAnalysis({ analysis, onReRecord, onFinish }: 
         </CardContent>
       </Card>
 
-      {/* Score Breakdown */}
-      <Card className="gradient-card border-border">
-        <CardHeader className="pb-3">
-          <CardTitle className="text-lg flex items-center gap-2">
-            <Trophy className="h-5 w-5 text-primary" />
-            {t('analysis.scoreBreakdown')}
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {SCORE_DIMENSIONS.map((dim, i) => {
-            const score = analysis[dim.key];
-            const Icon = dim.icon;
-            return (
-              <motion.div key={dim.key} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.1 * i }} className="space-y-1.5">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Icon className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-sm font-medium text-foreground">{dim.label}</span>
-                  </div>
-                  <span className={`text-sm font-bold ${getScoreColor(score)}`}>{score}/10</span>
-                </div>
-                <Progress value={score * 10} className={`h-2 bg-secondary ${getProgressColor(score)}`} />
-                <p className="text-xs text-muted-foreground">{dim.description}</p>
-              </motion.div>
-            );
-          })}
-        </CardContent>
-      </Card>
-
       {/* Suggestions */}
       <Card className="gradient-card border-border">
         <CardHeader className="pb-3">
