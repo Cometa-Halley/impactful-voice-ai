@@ -48,10 +48,10 @@ export default function RecordingControls({
                 className="flex items-center gap-1 bg-primary/10 text-primary px-3 py-1 rounded-full"
               >
                 <Hand className="h-3 w-3" />
-                <span>Wave to start</span>
+                <span>{t('recording.waveToStart')}</span>
               </motion.div>
             )}
-            <span>or press the button</span>
+            <span>{t('recording.orPress')}</span>
           </div>
         </div>
       ) : (
