@@ -249,7 +249,8 @@
     "tipReduceNoise": "Reduce ambient noise — close windows, turn off fans",
     "startRecording": "Start Recording",
     "audioOk": "Audio levels look good",
-    "lightingOk": "Lighting looks good"
+    "lightingOk": "Lighting looks good",
+    "getReady": "Get ready..."
   },
   "analysis": {
     "scoreBreakdown": "Score Breakdown",
