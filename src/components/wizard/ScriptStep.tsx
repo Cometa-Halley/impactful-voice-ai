@@ -75,7 +75,7 @@ export default function ScriptStep() {
 
   const hasProposal = !!proposedScript;
 
-  const displayedScript = hasProposal ? toReadableScript(proposedScript) : toReadableScript(script);
+  const displayedScript = toReadableScript(script);
 
   return (
     <motion.div key="step-script" initial="hidden" animate="visible" exit="exit" variants={fadeUp}>
