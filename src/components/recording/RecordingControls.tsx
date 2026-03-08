@@ -1,4 +1,5 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Circle, Square, Pause, Play, Hand, Timer } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -23,6 +24,7 @@ function formatTime(s: number) {
 export default function RecordingControls({
   isRecording, isPaused, gestureReady, onStart, onStop, onPause, onResume, duration,
 }: Props) {
+  const { t } = useTranslation();
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -46,10 +48,10 @@ export default function RecordingControls({
                 className="flex items-center gap-1 bg-primary/10 text-primary px-3 py-1 rounded-full"
               >
                 <Hand className="h-3 w-3" />
-                <span>Wave to start</span>
+                <span>{t('recording.waveToStart')}</span>
               </motion.div>
             )}
-            <span>or press the button</span>
+            <span>{t('recording.orPress')}</span>
           </div>
         </div>
       ) : (
