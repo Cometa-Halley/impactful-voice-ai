@@ -24,6 +24,7 @@ function formatTime(s: number) {
 export default function RecordingControls({
   isRecording, isPaused, gestureReady, onStart, onStop, onPause, onResume, duration,
 }: Props) {
+  const { t } = useTranslation();
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
