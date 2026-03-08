@@ -240,7 +240,9 @@ export default function RecordStep({ onRecordingComplete, mediaDevices }: Props)
             <div
               className="text-xs text-foreground/80 whitespace-pre-wrap leading-relaxed max-h-[8rem] overflow-y-auto"
               dangerouslySetInnerHTML={{
-                __html: tips.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>'),
+                __html: tips
+                  .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+                  .replace(/\*/g, ''),
               }}
             />
           )}
