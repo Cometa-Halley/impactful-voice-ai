@@ -44,6 +44,12 @@ const VideoCreatorWizard = () => {
 
   const mediaDevices = useMediaDevices();
 
+  // Reset all wizard state on fresh mount so each "Create Video" starts clean
+  useEffect(() => {
+    store.reset();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const steps = [
     { label: t('createVideo.steps.format'), icon: Monitor },
     { label: t('createVideo.steps.strategy'), icon: Target },
