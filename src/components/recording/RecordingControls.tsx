@@ -1,4 +1,5 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Circle, Square, Pause, Play, Hand, Timer } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
