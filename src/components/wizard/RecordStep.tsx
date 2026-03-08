@@ -237,9 +237,12 @@ export default function RecordStep({ onRecordingComplete, mediaDevices }: Props)
             </div>
           )}
           {tips && (
-            <div className="text-xs text-foreground/80 whitespace-pre-wrap leading-relaxed max-h-[8rem] overflow-y-auto">
-              {tips}
-            </div>
+            <div
+              className="text-xs text-foreground/80 whitespace-pre-wrap leading-relaxed max-h-[8rem] overflow-y-auto"
+              dangerouslySetInnerHTML={{
+                __html: tips.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>'),
+              }}
+            />
           )}
         </div>
       </div>
